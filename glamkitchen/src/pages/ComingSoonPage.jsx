@@ -50,39 +50,41 @@ const ComingSoonPage = () => {
             <div className="absolute inset-0 bg-black bg-opacity-60" />
 
             {/* Title Section */}
-            <div className="z-10 text-center mt-10">
-                <h1 className="text-6xl lg:text-8xl font-bold mb-8 tracking-widest animate-pulse">
+            <div className="z-10 text-center mt-10 px-4 md:px-0">
+                <h1 className="text-5xl md:text-6xl lg:text-8xl font-bold mb-4 lg:mb-8 tracking-widest animate-pulse">
                     GLAM YOUR KITCHEN
                 </h1>
-                <h2 className="text-4xl lg:text-6xl font-semibold mb-8">
+                <h2 className="text-3xl md:text-4xl lg:text-6xl font-semibold mb-4 lg:mb-8">
                     Coming Soon
                 </h2>
 
                 {/* Countdown Timer */}
-                <div className="flex justify-center space-x-8 text-4xl lg:text-6xl font-semibold mb-12">
-                    <div>
+                <div className="flex flex-wrap justify-center space-x-4 lg:space-x-8 text-3xl md:text-4xl lg:text-6xl font-semibold mb-8 lg:mb-12">
+                    <div className="flex flex-col items-center">
                         <span>{timeLeft.days}</span>
-                        <p className="text-lg lg:text-2xl">Days</p>
+                        <p className="text-sm md:text-lg lg:text-2xl">Days</p>
                     </div>
-                    <div>
+                    <div className="flex flex-col items-center">
                         <span>{timeLeft.hours}</span>
-                        <p className="text-lg lg:text-2xl">Hours</p>
+                        <p className="text-sm md:text-lg lg:text-2xl">Hours</p>
                     </div>
-                    <div>
+                    <div className="flex flex-col items-center">
                         <span>{timeLeft.minutes}</span>
-                        <p className="text-lg lg:text-2xl">Minutes</p>
+                        <p className="text-sm md:text-lg lg:text-2xl">Minutes</p>
                     </div>
-                    <div>
+                    <div className="flex flex-col items-center">
                         <span>{timeLeft.seconds}</span>
-                        <p className="text-lg lg:text-2xl">Seconds</p>
+                        <p className="text-sm md:text-lg lg:text-2xl">Seconds</p>
                     </div>
                 </div>
             </div>
 
             {/* Footer Section */}
-            <div className="z-10 mb-10 text-center">
-                <p className="mb-4 text-xl lg:text-2xl">Stay tuned! We are launching something exciting.</p>
-                <p className="text-sm lg:text-lg">
+            <div className="z-10 mb-6 lg:mb-10 text-center px-4 md:px-0">
+                <p className="mb-2 md:mb-4 text-lg md:text-xl lg:text-2xl">
+                    Stay tuned! We are launching something exciting.
+                </p>
+                <p className="text-sm md:text-base lg:text-lg">
                     Follow us on Instagram:
                     <a
                         href="https://www.instagram.com/_glam.yourkitchen/"
@@ -93,10 +95,13 @@ const ComingSoonPage = () => {
                         @_glam.yourkitchen
                     </a>
                 </p>
-                <p className="text-xs lg:text-sm mt-4">&copy; 2024 Glam Your Kitchen. All rights reserved.</p>
+                <p className="text-xs md:text-sm lg:text-base mt-4">
+                    &copy; 2024 Glam Your Kitchen. All rights reserved.
+                </p>
             </div>
         </div>
     );
 };
+// responsive
 
 export default ComingSoonPage;
