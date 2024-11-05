@@ -8,12 +8,13 @@ import {
   Route,
   RouterProvider,
 } from "react-router-dom";
-import ComingSoonPage from './pages/ComingSoonPage';
+// import ComingSoonPage from './pages/ComingSoonPage';
+import MaintenancePage from './pages/MaintenancePage';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route>
-      <Route path="/" element={<ComingSoonPage />}>
+      <Route path="/" element={<MaintenancePage />}>
 
       </Route>
     </Route>))
