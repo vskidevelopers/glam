@@ -1,7 +1,14 @@
 import React from "react";
 import { motion } from "framer-motion"; // Ensure this is installed via `npm install framer-motion`
 import glamlogo from "../assets/glamlogo.png"
+import { useNavigate } from "react-router-dom"
+import { Button } from "@/components/ui/button";
+
 const MaintenancePage = () => {
+    const navigate = useNavigate()
+    const handleTakeTour = () => {
+        navigate("/home")
+    }
     return (
         <div className="relative min-h-screen flex flex-col justify-between items-center overflow-hidden text-white bg-gray-900">
             {/* Animated Gradient Background */}
@@ -34,14 +41,14 @@ const MaintenancePage = () => {
                 </p>
 
                 {/* Tour Button with Ping Effect */}
-                <button
+                <Button
                     className="relative px-8 py-4 rounded-lg bg-jonquil-500 text-black font-semibold text-lg shadow-lg hover:bg-jonquil-400 transition duration-200"
-                    onClick={() => alert("Tour in progress...")} // Replace with actual tour link or function
+                    onClick={handleTakeTour} // Replace with actual tour link or function
                 >
                     <span className="animate-ping absolute -right-2 -top-2 inline-flex h-5 w-5 rounded-full bg-robin_egg_blue-400 opacity-75"></span>
                     <span className="absolute -right-2 -top-2 inline-flex rounded-full h-5 w-5 bg-robin_egg_blue-500"></span>
                     <span className="relative">Take a Tour</span>
-                </button>
+                </Button>
             </div>
 
             {/* Footer Section */}
