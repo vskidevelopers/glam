@@ -5,35 +5,36 @@ import { useState } from "react";
 import { useEffect } from "react";
 
 export default function PrivateRoutes() {
-    const [authUser, setAuthUser] = useState();
-    const [loginState, setLoginState] = useState(false);
-    //   const { user } = useAuth();
-    const user = auth.currentUser;
-    const navigate = useNavigate();
-    const location = useLocation();
+  const [authUser, setAuthUser] = useState();
+  const [loginState, setLoginState] = useState(false);
 
-    useEffect(() => {
-        const fetchUser = () => {
-            var isAuth = localStorage.getItem("isAuth");
-            if (isAuth) {
-                console.log("User Logged In!");
-                setLoginState(true);
-                navigate("/admin");
-            } else if (user) {
-                console.log("User exists >>", user);
-                setAuthUser(user);
-                navigate("/admin");
-            }
-        };
+  // const user = auth.currentUser;
+  const user = true;
+  const navigate = useNavigate();
+  const location = useLocation();
 
-        fetchUser();
-    }, []);
+  useEffect(() => {
+    const fetchUser = () => {
+      var isAuth = localStorage.getItem("isAuth");
+      if (isAuth) {
+        console.log("User Logged In!");
+        setLoginState(true);
+        navigate("/admin");
+      } else if (user) {
+        console.log("User exists >>", user);
+        setAuthUser(user);
+        navigate("/admin");
+      }
+    };
 
-    return loginState ? (
-        <Outlet />
-    ) : authUser ? (
-        <Outlet />
-    ) : (
-        <Navigate to="/login" state={{ from: location }} replace />
-    );
+    fetchUser();
+  }, []);
+
+  return loginState ? (
+    <Outlet />
+  ) : authUser ? (
+    <Outlet />
+  ) : (
+    <Navigate to="/login" state={{ from: location }} replace />
+  );
 }

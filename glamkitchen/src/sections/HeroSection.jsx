@@ -34,20 +34,6 @@ const HeroSection = ({ tagline, image, title, skins }) => {
           <Link to="/" className="text-white">
             Home
           </Link>{" "}
-          |{" "}
-          {skins ? (
-            <>
-              <Link to="/skins" className="text-white">
-                Skins
-              </Link>{" "}
-              |{" "}
-              <Link to="/skins/collections" className="text-white">
-                Collections
-              </Link>
-            </>
-          ) : (
-            ""
-          )}{" "}
           | {title}
         </div>
       </div>

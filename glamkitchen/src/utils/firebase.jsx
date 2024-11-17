@@ -442,3 +442,234 @@ export const useCategoriesFunctions = () => {
 
   return { addCategory, fetchAllCategories, fetchCategoryDetail };
 };
+
+// /////////////////////////////
+//   Order Related Functions //
+// ///////////////////////////
+export const useOrdersFunctions = () => {
+  const addOrder = async (data, type = "general") => {
+    try {
+      // Define the orders collection with type-based sub-collection
+      const ordersCollectionRef = collection(db, "Orders", type, type);
+
+      // Add default status to the data object
+      const orderData = { ...data, status: "pending" };
+
+      // Create a new document reference in the specified sub-collection
+      const newOrderRef = doc(ordersCollectionRef);
+      await setDoc(newOrderRef, orderData);
+
+      return { success: true, message: "Order added successfully" };
+    } catch (error) {
+      return { success: false, message: "Failed to add the Order" };
+    }
+  };
+
+  const getAllOrdersbyStatus = async (orderStatus) => {
+    const orderCollectionRef = collection(db, "Orders");
+    const ordersQuery = query(
+      orderCollectionRef,
+      where("status", "==", orderStatus)
+    ); // Filter by status
+
+    const ordersSnapshot = await getDocs(ordersQuery);
+
+    if (ordersSnapshot?.empty) {
+      console.log("No order exists under selected status");
+      return {
+        success: false,
+        data: [],
+        message: `No order exists under selected status >> ${orderStatus}`,
+      };
+    } else {
+      console.log("ordersSnapshot from fetchOrders >> ", ordersSnapshot);
+      const orderData = ordersSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      return {
+        success: true,
+        data: orderData,
+        message: "Order exists in the selected category",
+      };
+    }
+  };
+
+  const updateOrderStatusById = async (id, status) => {
+    console.log(`order_id : ${id} ||  Status : ${status}`);
+    const orderCollectionRef = doc(db, "Orders", id);
+    try {
+      const orderToUpdateSnapShot = await getDoc(orderCollectionRef);
+      if (orderToUpdateSnapShot.exists()) {
+        console.log(
+          "order_found_and_ready_for_update >> ",
+          orderToUpdateSnapShot
+        );
+        await updateDoc(orderCollectionRef, {
+          status: status,
+        });
+        return {
+          success: true,
+          message: "Order updated Successfully",
+          status: status,
+        };
+      }
+    } catch (error) {
+      console.log("error occured trying to update a order");
+      return {
+        success: false,
+        message: "Failed to update the order",
+        error: error,
+      };
+    }
+  };
+
+  const getAllOrders = async () => {
+    const orderCollectionRef = collection(db, "Orders");
+    const ordersQuery = query(orderCollectionRef); // No filtering here
+
+    const ordersSnapshot = await getDocs(ordersQuery);
+
+    if (ordersSnapshot?.empty) {
+      console.log("No orders found");
+      return {
+        success: false,
+        data: [],
+        message: "No orders found",
+      };
+    } else {
+      console.log("ordersSnapshot from getAllOrders >> ", ordersSnapshot);
+      const orderData = ordersSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      return {
+        success: true,
+        data: orderData,
+        message: "Orders retrieved successfully",
+      };
+    }
+  };
+
+  return {
+    addOrder,
+    getAllOrders,
+    getAllOrdersbyStatus,
+    updateOrderStatusById,
+  };
+};
+
+export const useNewslettersFunctions = () => {
+  const addNewsletter = async (data) => {
+    const newslettersCollectionRef = collection(db, "Newsletters");
+    try {
+      const newNewsletterRef = doc(newslettersCollectionRef);
+      await setDoc(newNewsletterRef, data);
+      return { success: true, message: "Newsletter added successfully" };
+    } catch (error) {
+      return { success: false, message: "Failed to add the Newsletter" };
+    }
+  };
+
+  const getAllNewsletters = async () => {
+    const newslettersCollectionRef = collection(db, "Newsletters");
+
+    const newslettersSnapshot = await getDocs(newslettersCollectionRef);
+
+    if (newslettersSnapshot?.empty) {
+      console.log("No newsletter exists in the selected category");
+      return {
+        success: false,
+        data: [],
+        message: "No newsletter exists in the selected category",
+      };
+    } else {
+      console.log(
+        "newslettersSnapshot from getAllNewsletters >> ",
+        newslettersSnapshot
+      );
+      const newslettersData = newslettersSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      return {
+        success: true,
+        data: newslettersData,
+        message: "Newsletters exist in the selected category",
+      };
+    }
+  };
+
+  const updateNewsletterStatusId = async (id, status) => {
+    console.log(`newsletter_id : ${id} || Status : ${status}`);
+    const newslettersCollectionRef = doc(db, "Newsletters", id);
+    try {
+      const newsletterToUpdateSnapShot = await getDoc(newslettersCollectionRef);
+      if (newsletterToUpdateSnapShot.exists()) {
+        console.log(
+          "newsletter_found_and_ready_for_update >> ",
+          newsletterToUpdateSnapShot
+        );
+        await updateDoc(newslettersCollectionRef, {
+          status: status,
+        });
+        return {
+          success: true,
+          message: "Newsletter updated Successfully",
+          status: status,
+        };
+      }
+    } catch (error) {
+      console.log("error occurred trying to update a newsletter");
+      return {
+        success: false,
+        message: "Failed to update the Newsletter",
+        error: error,
+      };
+    }
+  };
+
+  const getAllNewslettersByStatus = async (status) => {
+    const newslettersCollectionRef = collection(db, "Newsletters");
+    const newslettersCollectionQuery = query(
+      newslettersCollectionRef,
+      where("status", "==", status)
+    );
+    try {
+      const newsletterToUpdateSnapshot = await getDocs(
+        newslettersCollectionQuery
+      );
+      console.log(
+        "newsletter_found_and_ready_for_update >> ",
+        newsletterToUpdateSnapshot
+      );
+      const newslettersSnapshotData = newsletterToUpdateSnapshot.docs.map(
+        (doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })
+      );
+      return {
+        success: true,
+        message: "Newsletter updated Successfully",
+        status: status,
+        data: newslettersSnapshotData,
+      };
+    } catch (error) {
+      console.log("error occurred trying to Fetch newsletters");
+      return {
+        success: false,
+        message: "Failed to get the Newsletters",
+        error: error,
+        data: null,
+      };
+    }
+  };
+
+  return {
+    addNewsletter,
+    getAllNewsletters,
+    updateNewsletterStatusId,
+    getAllNewslettersByStatus,
+  };
+};
