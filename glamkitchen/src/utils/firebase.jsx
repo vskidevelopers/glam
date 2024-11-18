@@ -27,7 +27,7 @@ import {
   uploadBytesResumable,
   getDownloadURL,
 } from "firebase/storage";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBlRlkdGLKbGp3VoGLDEFf9VdZ5P-FbKSE",
@@ -673,3 +673,134 @@ export const useNewslettersFunctions = () => {
     getAllNewslettersByStatus,
   };
 };
+
+// ////////////////////////////
+//   Cart Related Functions //
+// //////////////////////////
+
+export function useCartFunctions() {
+  const CART_KEY = "cart";
+
+  // Create a cart if one doesn't exist
+  const createCart = useCallback(() => {
+    const existingCart = localStorage.getItem(CART_KEY);
+
+    if (existingCart) {
+      console.log("Cart already exists:", JSON.parse(existingCart));
+      return JSON.parse(existingCart);
+    }
+
+    const cartId = `cart_${Date.now()}`;
+    const newCart = {
+      cartId,
+      items: [],
+      totalQuantity: 0,
+      totalPrice: 0,
+      createdAt: new Date().toISOString(),
+    };
+
+    localStorage.setItem(CART_KEY, JSON.stringify(newCart));
+    console.log("New cart created:", newCart);
+    return newCart;
+  }, []);
+
+  // Add an item to the cart
+  const addItemToCart = useCallback(
+    (item) => {
+      let cart = localStorage.getItem(CART_KEY);
+
+      if (!cart) {
+        cart = createCart(); // If no cart, create one
+      } else {
+        cart = JSON.parse(cart);
+      }
+
+      // Ensure price is an integer
+      const price =
+        typeof item.price === "string" ? parseInt(item.price, 10) : item.price;
+
+      // Set the default quantity to 1 if not provided
+      const quantity = item.quantity || 1;
+
+      const existingItemIndex = cart.items.findIndex(
+        (cartItem) => cartItem.productId === item.productId
+      );
+
+      if (existingItemIndex !== -1) {
+        // Update quantity and subtotal for existing item
+        cart.items[existingItemIndex].quantity += quantity;
+        cart.items[existingItemIndex].subtotal += quantity * price;
+      } else {
+        // Add new item
+        const newItem = {
+          ...item,
+          price, // Ensure price is stored as a number
+          quantity,
+          subtotal: quantity * price,
+        };
+        cart.items.push(newItem);
+      }
+
+      // Update total quantity and price
+      cart.totalQuantity += quantity;
+      cart.totalPrice += quantity * price;
+
+      // Save updated cart to local storage
+      localStorage.setItem(CART_KEY, JSON.stringify(cart));
+      console.log("Item added to cart:", cart);
+      return { success: true, data: cart };
+    },
+    [createCart]
+  );
+
+  // Get the current cart
+  const getCart = useCallback(() => {
+    const cart = localStorage.getItem(CART_KEY);
+
+    if (cart) {
+      console.log("Fetched cart:", JSON.parse(cart));
+      return JSON.parse(cart);
+    } else {
+      console.log("No cart found");
+      return null;
+    }
+  }, []);
+
+  // Delete an item from the cart
+  const deleteCartItem = useCallback((itemId) => {
+    const cart = localStorage.getItem(CART_KEY);
+
+    if (!cart) {
+      console.log("No cart found to delete item from");
+      return null;
+    }
+
+    const parsedCart = JSON.parse(cart);
+
+    // Filter out the item to be deleted
+    const updatedItems = parsedCart.items.filter(
+      (item) => item.productId !== itemId
+    );
+
+    if (updatedItems.length === parsedCart.items.length) {
+      console.log("Item not found in cart");
+      return parsedCart;
+    }
+
+    // Recalculate totals
+    const updatedCart = {
+      ...parsedCart,
+      items: updatedItems,
+      totalQuantity: updatedItems.reduce((sum, item) => sum + item.quantity, 0),
+      totalPrice: updatedItems.reduce((sum, item) => sum + item.subtotal, 0),
+    };
+
+    // Save updated cart to local storage
+    localStorage.setItem(CART_KEY, JSON.stringify(updatedCart));
+    console.log("Item deleted from cart:", updatedCart);
+    return updatedCart;
+  }, []);
+
+  // Return all cart functions
+  return { createCart, addItemToCart, getCart, deleteCartItem };
+}

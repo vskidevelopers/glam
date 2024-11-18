@@ -1,81 +1,109 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { User, Phone, MapPin } from "lucide-react";
 
-const ExpressOrderForm = () => {
+const ExpressOrderForm = ({ CART_KEY }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
 
-  // Mock product data
-  const product = {
-    image:
-      "https://ke.jumia.is/unsafe/fit-in/500x500/filters:fill(white)/product/15/1281531/1.jpg?2838",
-    title: "Elegant Kitchen Set",
-    price: 1500,
-  };
+  const [cart, setCart] = useState();
 
-  const subtotal = product.price;
-  const tax = 0;
-  const total = subtotal + tax;
+  useEffect(() => {
+    handleFetchOrder();
+  }, []);
+
+  const handleFetchOrder = () => {
+    let cart = localStorage.getItem(CART_KEY);
+    if (cart) {
+      cart = JSON.parse(cart); // Parse the cart string into an object
+      console.log("Cart to post >>", cart); // Log the cart as an object
+      setCart(cart);
+    } else {
+      console.log("Cart is empty or not found.");
+    }
+  };
 
   // Form submission handler
   const onSubmit = (data) => {
-    console.log("Order Submitted:", data);
+    const finalOrder = {
+      ...data,
+      cart: cart?.items || [], // Include the cart items in the final submission
+    };
+
+    console.log("Order Submitted:", finalOrder);
+
+    // Add your API request or submission logic here
+    // Example:
+    // axios.post('/api/orders', finalOrder)
+    //   .then(response => console.log("Order Successful!", response))
+    //   .catch(error => console.error("Error submitting order:", error));
+  };
+
+  // Calculate the total from cart items
+  const calculateTotal = (items) => {
+    return items.reduce((total, item) => total + item.subtotal, 0);
   };
 
   return (
-    <div className="max-w-lg mx-auto bg-white shadow-md rounded-lg p-6 h-[80vh] ">
+    <div className="max-w-lg mx-auto bg-white shadow-md rounded-lg p-6 h-[80vh]">
       <h2 className="text-2xl font-bold mb-4 text-center">
         Express Order Form
       </h2>
 
       {/* Scrollable Area for Form Content */}
-      <ScrollArea className="h-[90%] ">
+      <ScrollArea className="h-[90%]">
         {/* Product Details Table */}
-        <div className="w-full  rounded-lg mb-4">
-          <div className="grid grid-cols-3  p-4 ">
-            <div className="col-span-1 flex justify-center">
-              <img
-                src={product.image}
-                alt={product.title}
-                className="w-20 h-20 object-cover rounded"
-              />
-            </div>
-            <div className="col-span-1 flex flex-col justify-center items-start">
-              <h3 className="font-semibold text-gray-800">{product.title}</h3>
-              <p className="text-gray-500">Price: Ksh {product.price}</p>
-            </div>
-            <div className="col-span-1 flex items-center justify-end">
-              <p className="text-gray-800 font-semibold">Ksh {product.price}</p>
+        {cart?.items?.map((item, index) => (
+          <div key={index} className="w-full rounded-lg mb-4">
+            <div className="grid grid-cols-3 p-4">
+              <div className="col-span-1 flex justify-center">
+                <img
+                  src={item.productImage}
+                  alt={item.productName}
+                  className="w-20 h-20 object-cover rounded"
+                />
+              </div>
+              <div className="col-span-1 flex flex-col justify-center items-start">
+                <h3 className="font-semibold text-gray-800">
+                  {item.productName}
+                </h3>
+                <p className="text-gray-500">Price: Ksh {item.price}</p>
+                <p className="text-gray-500">Quantity: {item.quantity}</p>
+              </div>
+              <div className="col-span-1 flex items-center justify-end">
+                <p className="text-gray-800 font-semibold">
+                  Ksh {item.subtotal}
+                </p>
+              </div>
             </div>
           </div>
+        ))}
 
-          {/* Subtotal, Tax, and Total Row */}
-          <div className="bg-gray-100 border border-gray-300 p-4 border-t border-gray-300">
-            <div className="grid grid-cols-3 mb-2">
-              <p className="text-gray-600 col-span-2">Subtotal</p>
-              <p className="text-gray-800 font-semibold text-right">
-                Ksh {subtotal}
-              </p>
-            </div>
-            <div className="grid grid-cols-3 mb-2">
-              <p className="text-gray-600 col-span-2">Tax</p>
-              <p className="text-gray-800 font-semibold text-right">
-                Ksh {tax}
-              </p>
-            </div>
-            <div className="grid grid-cols-3 font-bold">
-              <p className="text-gray-600 col-span-2">Total</p>
-              <p className="text-gray-800 text-right">Ksh {total}</p>
-            </div>
+        {/* Subtotal, Tax, and Total Row */}
+        <div className="bg-gray-100 border border-gray-300 p-4 border-t border-gray-300">
+          <div className="grid grid-cols-3 mb-2">
+            <p className="text-gray-600 col-span-2">Subtotal</p>
+            <p className="text-gray-800 font-semibold text-right">
+              Ksh {calculateTotal(cart?.items || [])}
+            </p>
+          </div>
+          <div className="grid grid-cols-3 mb-2">
+            <p className="text-gray-600 col-span-2">Tax</p>
+            <p className="text-gray-800 font-semibold text-right">Ksh 0</p>
+          </div>
+          <div className="grid grid-cols-3 font-bold">
+            <p className="text-gray-600 col-span-2">Total</p>
+            <p className="text-gray-800 text-right">
+              Ksh {calculateTotal(cart?.items || [])}
+            </p>
           </div>
         </div>
 
-        {/* Form Fields */}
+        {/* Customer Form Fields */}
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-4">
             <label className="block text-gray-700">Name*</label>
@@ -84,12 +112,14 @@ const ExpressOrderForm = () => {
               <input
                 type="text"
                 placeholder="Name"
-                {...register("name", { required: "Name is required" })}
+                {...register("customer.name", { required: "Name is required" })}
                 className="flex-grow outline-none"
               />
             </div>
-            {errors.name && (
-              <p className="text-red-500 text-sm">{errors.name.message}</p>
+            {errors.customer?.name && (
+              <p className="text-red-500 text-sm">
+                {errors.customer.name.message}
+              </p>
             )}
           </div>
 
@@ -100,12 +130,16 @@ const ExpressOrderForm = () => {
               <input
                 type="text"
                 placeholder="Phone"
-                {...register("phone", { required: "Phone is required" })}
+                {...register("customer.phone", {
+                  required: "Phone is required",
+                })}
                 className="flex-grow outline-none"
               />
             </div>
-            {errors.phone && (
-              <p className="text-red-500 text-sm">{errors.phone.message}</p>
+            {errors.customer?.phone && (
+              <p className="text-red-500 text-sm">
+                {errors.customer.phone.message}
+              </p>
             )}
           </div>
 

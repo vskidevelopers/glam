@@ -58,11 +58,14 @@ export default function ShopGrid() {
 
         <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {currentItems && currentItems?.length > 0 ? (
-            currentItems.map((data, i) => (
-              <div key={i}>
-                <ProductCard product={data} />
-              </div>
-            ))
+            currentItems.map((data, i) => {
+              console.log(`Item ${i + 1}:`, data); // Logs each item in the array
+              return (
+                <div key={i}>
+                  <ProductCard product={data} index={1 + i} />
+                </div>
+              );
+            })
           ) : (
             <div className="col-span-full text-center text-lg">
               No products in store
