@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import React from "react";
+import { Link } from "react-router-dom";
 
 export default function CategoriesSection() {
   return (
@@ -16,9 +17,9 @@ export default function CategoriesSection() {
       <div className="flex flex-wrap -mx-2 items-center">
         {/* First Column */}
         <div className="w-full md:w-1/3 px-2 mb-4 md:mb-0">
-          <a
+          <Link
             className="block category-item relative overflow-hidden h-64 bg-cover bg-center group"
-            href="shop.html"
+            to="shop"
             style={{
               backgroundImage:
                 "url(https://shopusa.co.ke/cdn/shop/files/tramontina-11-piece-nonstick-porcelain-enamel-cookware-set-shopusa-kenya-2_660x660.jpg)",
@@ -32,14 +33,14 @@ export default function CategoriesSection() {
                 Cookware Sets
               </Button>
             </div>
-          </a>
+          </Link>
         </div>
 
         {/* Second Column */}
         <div className="w-full md:w-1/3 px-2 mb-4 md:mb-0">
-          <a
+          <Link
             className="block category-item relative overflow-hidden h-64 bg-cover bg-center group"
-            href="shop.html"
+            to="shop"
             style={{
               backgroundImage:
                 "url(https://homeandbeyond.co.ke/cdn/shop/files/Kingston24Set-1.jpg)",
@@ -53,11 +54,11 @@ export default function CategoriesSection() {
                 Cutlery
               </Button>
             </div>
-          </a>
+          </Link>
 
-          <a
+          <Link
             className="block category-item relative overflow-hidden h-64 bg-cover bg-center group mt-4"
-            href="shop.html"
+            to="shop"
             style={{
               backgroundImage:
                 "url(https://m.media-amazon.com/images/I/91WLU+okRxL.jpg)",
@@ -70,14 +71,14 @@ export default function CategoriesSection() {
                 Bakeware
               </Button>
             </div>
-          </a>
+          </Link>
         </div>
 
         {/* Third Column */}
         <div className="w-full md:w-1/3 px-2">
-          <a
+          <Link
             className="block category-item relative overflow-hidden h-64 bg-cover bg-center group"
-            href="shop.html"
+            to="shop"
             style={{
               backgroundImage:
                 "url(https://blog.hignellrentals.com/hubfs/Untitled%20design%20%281%29.png)",
@@ -91,7 +92,7 @@ export default function CategoriesSection() {
                 Small Appliances
               </Button>
             </div>
-          </a>
+          </Link>
         </div>
       </div>
     </section>

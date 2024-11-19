@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/table";
 
 const CartTable = ({ cart }) => {
+  console.log("cart from cart table >> ", cart);
+
   const handleIncrease = (productId) => {
     // Add increase functionality here
   };
@@ -37,11 +39,11 @@ const CartTable = ({ cart }) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {cart.items.map((item) => (
+        {cart?.map((item) => (
           <TableRow key={item.productId}>
             <TableCell>
               <img
-                src={item.image}
+                src={item.productImage}
                 alt={item.productName}
                 className="w-16 h-16 object-cover rounded-md"
               />

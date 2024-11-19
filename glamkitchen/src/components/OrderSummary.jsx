@@ -1,10 +1,8 @@
 import React from "react";
 
-const OrderSummary = ({ cart }) => {
-  const subtotal = cart.items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+const OrderSummary = ({ cart, subtotal }) => {
+  console.log("subtotal >> ", subtotal);
+
   const taxVat = subtotal * 0.15; // Assuming a 15% tax rate
   const total = subtotal + taxVat;
 
@@ -27,15 +25,27 @@ const OrderSummary = ({ cart }) => {
       <div className="space-y-2 mb-4">
         <div className="flex justify-between">
           <span>Subtotal</span>
-          <span>${subtotal.toFixed(2)}</span>
+          <span>
+            {typeof subtotal === "string"
+              ? parseFloat(subtotal).toFixed(2)
+              : subtotal.toFixed(2)}
+          </span>
         </div>
         <div className="flex justify-between">
           <span>Tax/VAT (15%)</span>
-          <span>${taxVat.toFixed(2)}</span>
+          <span>
+            {typeof taxVat === "string"
+              ? parseFloat(taxVat).toFixed(2)
+              : taxVat.toFixed(2)}
+          </span>
         </div>
         <div className="flex justify-between font-semibold">
           <span>Total</span>
-          <span>${total.toFixed(2)}</span>
+          <span>
+            {typeof total === "string"
+              ? parseFloat(total).toFixed(2)
+              : total.toFixed(2)}
+          </span>
         </div>
 
         {/* Coupon Code */}

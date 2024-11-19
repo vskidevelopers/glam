@@ -1,44 +1,56 @@
 import CartTable from "@/components/CartTable";
 import OrderSummary from "@/components/OrderSummary";
 import HeroSection from "@/sections/HeroSection";
-import React from "react";
+import { useCartFunctions } from "@/utils/firebase";
+import React, { useEffect, useState } from "react";
 
 function Cart() {
-  const cart = {
-    customer: {
-      id: "cust_001", // unique identifier for the customer
-      name: "Jane Doe", // customer's name
-      email: "janedoe@example.com", // customer's email address
-    },
-    items: [
-      {
-        productId: "prod_001",
-        productName: "Stainless Steel Frying Pan",
-        image: "https://example.com/images/frying-pan.jpg",
-        price: 25.99,
-        quantity: 2,
-        subtotal: 51.98,
-      },
-      {
-        productId: "prod_002",
-        productName: "Ceramic Coffee Mug",
-        image: "https://example.com/images/coffee-mug.jpg",
-        price: 9.99,
-        quantity: 4,
-        subtotal: 39.96,
-      },
-      {
-        productId: "prod_003",
-        productName: "Cutting Board Set",
-        image: "https://example.com/images/cutting-board.jpg",
-        price: 14.99,
-        quantity: 1,
-        subtotal: 14.99,
-      },
-    ],
-    totalAmount: 106.93, // optional, sum of subtotals in the cart
+  const { getCart } = useCartFunctions();
+  const [cart, setCart] = useState();
+  const [cartItems, setCartItems] = useState(() => {
+    const CART_KEY = "cart";
+    const storedCart = JSON.parse(localStorage.getItem(CART_KEY));
+    return storedCart ? storedCart.items : [];
+  });
+  const CART_KEY = "cart";
+  const handleRemoveItem = (productId) => {
+    const updatedCartItems = cartItems.filter(
+      (item) => item.productId !== productId
+    );
+
+    setCartItems(updatedCartItems);
+
+    // Update local storage
+    const storedCart = JSON.parse(localStorage.getItem(CART_KEY));
+    if (storedCart) {
+      const updatedCart = {
+        ...storedCart,
+        items: updatedCartItems,
+        totalQuantity: updatedCartItems.reduce(
+          (acc, item) => acc + item.quantity,
+          0
+        ),
+        totalPrice: updatedCartItems.reduce(
+          (acc, item) => acc + item.subtotal,
+          0
+        ),
+      };
+      localStorage.setItem(CART_KEY, JSON.stringify(updatedCart));
+    }
+  };
+  const [subTotal, setSubTotal] = useState(0);
+
+  const handleFetchCart = async () => {
+    const getCartResponse = await getCart();
+    console.log("getCartResponse >> ", getCartResponse);
+    setCartItems(getCartResponse?.items);
+    setCart(getCartResponse);
+    setSubTotal(getCartResponse?.totalPrice);
   };
 
+  useEffect(() => {
+    handleFetchCart();
+  }, []);
   return (
     <div>
       <HeroSection
@@ -48,13 +60,13 @@ function Cart() {
         }
       />
 
-      <main className="grid flex-1 items-start gap-4 px-4 sm:px-6 sm:py-10 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
+      <main className="grid flex-1 md:px-16  items-start gap-4 px-4 sm:px-6 sm:py-10 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
         <div className="col-span-2">
           <h2 className="font-bold text-2xl md:text-5xl">Your Cart</h2>
-          <CartTable cart={cart} />
+          <CartTable cart={cartItems} />
         </div>
         <div>
-          <OrderSummary cart={cart} />
+          <OrderSummary subtotal={subTotal} cart={cart} />
         </div>
       </main>
     </div>

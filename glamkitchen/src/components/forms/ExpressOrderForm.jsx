@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { User, Phone, MapPin } from "lucide-react";
+import { useOrdersFunctions } from "@/utils/firebase";
 
 const ExpressOrderForm = ({ CART_KEY }) => {
   const {
@@ -9,6 +10,7 @@ const ExpressOrderForm = ({ CART_KEY }) => {
     handleSubmit,
     formState: { errors },
   } = useForm();
+  const { addOrder } = useOrdersFunctions();
 
   const [cart, setCart] = useState();
 
@@ -28,19 +30,49 @@ const ExpressOrderForm = ({ CART_KEY }) => {
   };
 
   // Form submission handler
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
+    // Determine if a user exists (e.g., via Firebase Auth or Context)
+    const user = false;
+
+    // Dynamically construct the customer object
+    const customer = user
+      ? {
+          name: user.name || "Anonymous",
+          email: user.email || "no-email@example.com",
+          phone: data.customer.phone, // Use phone from the form data
+        }
+      : {
+          name: data.customer.name, // Use name from the form data
+          phone: data.customer.phone, // Use phone from the form data
+        };
+
+    // Prepare the final order object
     const finalOrder = {
-      ...data,
-      cart: cart?.items || [], // Include the cart items in the final submission
+      location: data.location, // Location from the form
+      subscribe: data.subscribe || false, // Subscription preference
+      discountCode: data.discountCode || null, // Optional discount code
+      cart: cart || [], // Cart items
+      customer, // Add dynamically constructed customer object
+      paymentMethod: "pay on delivery",
     };
 
-    console.log("Order Submitted:", finalOrder);
+    console.log("Submitting Order:", finalOrder);
 
-    // Add your API request or submission logic here
-    // Example:
-    // axios.post('/api/orders', finalOrder)
-    //   .then(response => console.log("Order Successful!", response))
-    //   .catch(error => console.error("Error submitting order:", error));
+    try {
+      // Call the addOrder function with type "EXPRESS"
+      const response = await addOrder(finalOrder, "EXPRESS");
+
+      if (response.success) {
+        console.log("Order added successfully:", response.message);
+        // Handle success, such as navigating to a thank-you page
+      } else {
+        console.error("Failed to add order:", response.message);
+        // Optionally show an error notification
+      }
+    } catch (error) {
+      console.error("An error occurred while submitting the order:", error);
+      // Optionally handle errors like showing a toast
+    }
   };
 
   // Calculate the total from cart items

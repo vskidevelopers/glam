@@ -314,24 +314,31 @@ export const useProductFunctions = () => {
       };
     }
   };
-
   const fetchProductDetail = async (id) => {
-    const productItemRef = doc(db, "Products", id);
-    const productSnap = await getDoc(productItemRef);
-    if (productSnap.exists()) {
-      console.log("product_data >> ", productSnap?.data());
-      const productData = { ...productSnap?.data(), id: id };
-      return {
-        success: true,
-        data: productData,
-        message: "product_found",
-      };
-    } else {
-      console.log("No such document!");
+    try {
+      const productDocRef = doc(db, "Products", id); // Assuming your products are in a collection called "Products"
+      const productSnap = await getDoc(productDocRef);
+
+      if (productSnap.exists()) {
+        const productData = { ...productSnap.data(), id: id }; // Include the ID in the returned data
+        return {
+          success: true,
+          data: productData,
+          message: "Product found",
+        };
+      } else {
+        return {
+          success: false,
+          data: null,
+          message: "Product not found",
+        };
+      }
+    } catch (error) {
+      console.error("Error fetching product:", error);
       return {
         success: false,
         data: null,
-        message: "product_not_found",
+        message: "Error fetching product",
       };
     }
   };
@@ -447,6 +454,7 @@ export const useCategoriesFunctions = () => {
 //   Order Related Functions //
 // ///////////////////////////
 export const useOrdersFunctions = () => {
+  // Add a new order to a specified sub-collection type
   const addOrder = async (data, type = "general") => {
     try {
       // Define the orders collection with type-based sub-collection
@@ -461,92 +469,110 @@ export const useOrdersFunctions = () => {
 
       return { success: true, message: "Order added successfully" };
     } catch (error) {
-      return { success: false, message: "Failed to add the Order" };
+      return { success: false, message: "Failed to add the order", error };
     }
   };
 
-  const getAllOrdersbyStatus = async (orderStatus) => {
-    const orderCollectionRef = collection(db, "Orders");
-    const ordersQuery = query(
-      orderCollectionRef,
-      where("status", "==", orderStatus)
-    ); // Filter by status
-
-    const ordersSnapshot = await getDocs(ordersQuery);
-
-    if (ordersSnapshot?.empty) {
-      console.log("No order exists under selected status");
-      return {
-        success: false,
-        data: [],
-        message: `No order exists under selected status >> ${orderStatus}`,
-      };
-    } else {
-      console.log("ordersSnapshot from fetchOrders >> ", ordersSnapshot);
-      const orderData = ordersSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      return {
-        success: true,
-        data: orderData,
-        message: "Order exists in the selected category",
-      };
-    }
-  };
-
-  const updateOrderStatusById = async (id, status) => {
-    console.log(`order_id : ${id} ||  Status : ${status}`);
-    const orderCollectionRef = doc(db, "Orders", id);
+  // Get all orders from a specific sub-collection and status
+  const getAllOrdersbyStatus = async (orderStatus, type = "general") => {
     try {
-      const orderToUpdateSnapShot = await getDoc(orderCollectionRef);
-      if (orderToUpdateSnapShot.exists()) {
-        console.log(
-          "order_found_and_ready_for_update >> ",
-          orderToUpdateSnapShot
-        );
-        await updateDoc(orderCollectionRef, {
-          status: status,
-        });
+      // Define the sub-collection path
+      const ordersCollectionRef = collection(db, "Orders", type, type);
+      const ordersQuery = query(
+        ordersCollectionRef,
+        where("status", "==", orderStatus)
+      );
+
+      const ordersSnapshot = await getDocs(ordersQuery);
+
+      if (ordersSnapshot?.empty) {
+        return {
+          success: false,
+          data: [],
+          message: `No orders exist under the selected status: ${orderStatus}`,
+        };
+      } else {
+        const orderData = ordersSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
         return {
           success: true,
-          message: "Order updated Successfully",
-          status: status,
+          data: orderData,
+          message: "Orders retrieved successfully",
         };
       }
     } catch (error) {
-      console.log("error occured trying to update a order");
       return {
         success: false,
-        message: "Failed to update the order",
-        error: error,
+        data: [],
+        message: "Failed to fetch orders",
+        error,
       };
     }
   };
 
-  const getAllOrders = async () => {
-    const orderCollectionRef = collection(db, "Orders");
-    const ordersQuery = query(orderCollectionRef); // No filtering here
+  // Update the status of an order by its ID in a specific sub-collection
+  const updateOrderStatusById = async (id, status, type = "general") => {
+    try {
+      // Define the specific document path in the sub-collection
+      const orderDocRef = doc(db, "Orders", type, type, id);
 
-    const ordersSnapshot = await getDocs(ordersQuery);
+      // Check if the document exists
+      const orderToUpdateSnapShot = await getDoc(orderDocRef);
+      if (orderToUpdateSnapShot.exists()) {
+        // Update the status of the order
+        await updateDoc(orderDocRef, { status });
+        return {
+          success: true,
+          message: "Order updated successfully",
+          status,
+        };
+      } else {
+        return {
+          success: false,
+          message: "Order not found",
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: "Failed to update the order",
+        error,
+      };
+    }
+  };
 
-    if (ordersSnapshot?.empty) {
-      console.log("No orders found");
+  // Get all orders from a specific sub-collection
+  const getAllOrders = async (type = "general") => {
+    try {
+      // Define the sub-collection path
+      const ordersCollectionRef = collection(db, "Orders", type, type);
+      const ordersSnapshot = await getDocs(ordersCollectionRef);
+
+      if (ordersSnapshot?.empty) {
+        return {
+          success: false,
+          data: [],
+          message: "No orders found",
+        };
+      } else {
+        const orderData = ordersSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        return {
+          success: true,
+          data: orderData,
+          message: "Orders retrieved successfully",
+        };
+      }
+    } catch (error) {
       return {
         success: false,
         data: [],
-        message: "No orders found",
-      };
-    } else {
-      console.log("ordersSnapshot from getAllOrders >> ", ordersSnapshot);
-      const orderData = ordersSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      return {
-        success: true,
-        data: orderData,
-        message: "Orders retrieved successfully",
+        message: "Failed to fetch orders",
+        error,
       };
     }
   };
@@ -558,7 +584,6 @@ export const useOrdersFunctions = () => {
     updateOrderStatusById,
   };
 };
-
 export const useNewslettersFunctions = () => {
   const addNewsletter = async (data) => {
     const newslettersCollectionRef = collection(db, "Newsletters");

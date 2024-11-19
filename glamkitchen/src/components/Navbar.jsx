@@ -20,11 +20,11 @@ import {
 import { Button } from "./ui/button";
 
 const navItems = [
-  { name: "Categories", href: "#categories" },
-  { name: "Shop", href: "#shop" },
-  { name: "About Us", href: "#about" },
-  { name: "Recipes", href: "#recipes" },
-  { name: "Contact", href: "#contact" },
+  { name: "Home", href: "/home" },
+  { name: "Shop", href: "/home/shop" },
+  { name: "Categories", href: "/home/categories" },
+  { name: "Cart", href: "/home/cart" },
+  { name: "Contact", href: "/home/contact" },
 ];
 
 function classNames(...classes) {
@@ -117,7 +117,7 @@ function Navbar() {
                         className="h-8 w-8 rounded-full"
                         src={
                           user.photoURL ||
-                          "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e"
+                          "https://png.pngitem.com/pimgs/s/649-6490124_katie-notopoulos-katienotopoulos-i-write-about-tech-round.png"
                         }
                         alt="User Avatar"
                       />

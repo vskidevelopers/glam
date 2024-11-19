@@ -1,4 +1,5 @@
 import { Maximize, Heart } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Badge } from "./ui/badge";
 import {
   Dialog,
@@ -201,13 +202,13 @@ function ProductCard({ product, index }) {
           </div>
 
           {/* Product Image */}
-          <a href="#">
+          <Link to={product?.id}>
             <img
               src={productImage}
               alt={productName}
               className="img-fluid w-full group-hover:opacity-30 transition-all duration-300"
             />
-          </a>
+          </Link>
 
           {/* Product Overlay */}
           <div className="product-overlay absolute left-0 bottom-0 w-full flex justify-center items-end p-4 opacity-0 group-hover:opacity-100 transition-all duration-300">
@@ -262,16 +263,19 @@ function ProductCard({ product, index }) {
                             onClick={handleExpressOrder}
                             className="bg-flame text-white px-6 py-2 rounded-full hover:bg-blue-600"
                           >
-                            View Your Cart
+                            Order Now
                           </DialogTrigger>
                           <DialogContent className="w-[650px] max-w-4xl">
                             <ExpressOrderForm CART_KEY={CART_KEY} />
                           </DialogContent>
                         </Dialog>
 
-                        <Button className="bg-green-500 text-white px-6 py-2 rounded-full hover:bg-green-600">
+                        <Link
+                          to="/home/checkout"
+                          className="bg-green-500 text-white px-6 py-2 rounded-full hover:bg-green-600"
+                        >
                           Continue to Checkout
-                        </Button>
+                        </Link>
                       </div>
                     </div>
                   </SheetFooter>

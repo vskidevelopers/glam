@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import Typewriter from "typewriter-effect";
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   Card,
@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CheckoutForm from "@/components/forms/CheckoutForm";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useOrdersFunctions } from "@/utils/firebase";
 
 function Checkout() {
   const user = false;
@@ -25,11 +26,84 @@ function Checkout() {
     watch,
     formState: { errors },
   } = useForm();
+  const { addOrder } = useOrdersFunctions();
   const [paymentMethod, setPaymentMethod] = useState("Pay on Delivery");
+  const [cart, setCart] = useState();
 
-  const onSubmit = (data) => {
-    console.log("Form Submitted:", data);
-    // handle the form submission (send to backend or db)
+  useEffect(() => {
+    handleFetchOrder();
+  }, []);
+  const CART_KEY = "cart";
+  const handleFetchOrder = () => {
+    let cart = localStorage.getItem(CART_KEY);
+    if (cart) {
+      cart = JSON.parse(cart); // Parse the cart string into an object
+      console.log("Cart to post >>", cart); // Log the cart as an object
+      setCart(cart);
+    } else {
+      console.log("Cart is empty or not found.");
+    }
+  };
+
+  const onSubmit = async (data) => {
+    // Determine if a user exists (e.g., via Firebase Auth or Context)
+    const user = false;
+
+    // Dynamically construct the customer object
+    const customer = user
+      ? {
+          name: user.name || "Anonymous",
+          email: user.email || "no-email@example.com",
+          phone: data.phone, // Use phone from the form data
+        }
+      : {
+          name: data.name, // Use name from the form data
+          email: data.email || "no-email@example.com", // Use email if available
+          phone: data.phone, // Use phone from the form data
+        };
+
+    // Prepare paymentInfo based on payment method
+    const paymentInfo =
+      paymentMethod === "Mpesa"
+        ? {
+            method: "Mpesa",
+            mpesaCode: data.mpesaCode || null, // Include Mpesa code if provided
+          }
+        : {
+            method: "Pay on Delivery",
+            mpesaCode: null, // No Mpesa code for Pay on Delivery
+          };
+
+    // Prepare the final order object
+    const finalOrder = {
+      orderDate: new Date().toISOString(), // Current date in ISO format
+      status: "Pending", // Default status for the order
+      type: "GENERAL", // Order type
+      paymentInfo, // Include the nested paymentInfo object
+      location: data.location, // Delivery location
+      subscribe: data.subscribe || false, // Subscription preference
+      discountCode: data.discountCode || null, // Optional discount code
+      cart: cart || [], // Cart items
+      customer, // Add dynamically constructed customer object
+    };
+
+    console.log("Submitting Order:", finalOrder);
+
+    try {
+      // Call the addOrder function with type "GENERAL"
+      const response = await addOrder(finalOrder, "GENERAL");
+
+      if (response.success) {
+        console.log("Order added successfully:", response.message);
+        // Handle success, such as navigating to a thank-you page
+      } else {
+        console.error("Failed to add order:", response.message);
+        // Optionally show an error notification
+      }
+    } catch (error) {
+      console.error("An error occurred while submitting the order:", error);
+      // Optionally handle errors like showing a toast
+    }
   };
 
   const title = "Shop | Checkout";
@@ -242,7 +316,7 @@ function Checkout() {
             </Tabs>
           </div>
         </form>
-        <FloatingOrderSummary />
+        <FloatingOrderSummary cart={cart} />
       </main>
     </div>
   );
