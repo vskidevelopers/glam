@@ -25,7 +25,7 @@ import CartItem from "./CartItem";
 import { useCartFunctions } from "@/utils/firebase";
 import ExpressOrderForm from "./forms/ExpressOrderForm";
 
-function ProductCard({ product, index }) {
+function ProductCard({ product, index, loading }) {
   console.log(`product # ${index} >>`, product);
   const { createCart, addItemToCart, getCart, deleteCartItem } =
     useCartFunctions();
@@ -172,6 +172,10 @@ function ProductCard({ product, index }) {
       console.log("Cart is empty or not found.");
     }
   };
+
+  if (loading) {
+    return <SkeletonCard />;
+  }
 
   return (
     <div className="col-lg-4 col-sm-6">
@@ -336,3 +340,17 @@ function ProductCard({ product, index }) {
 }
 
 export default ProductCard;
+
+import { Skeleton } from "@/components/ui/skeleton";
+
+export function SkeletonCard() {
+  return (
+    <div className="flex flex-col space-y-3">
+      <Skeleton className="h-[125px] w-[250px] rounded-xl" />
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-[250px]" />
+        <Skeleton className="h-4 w-[200px]" />
+      </div>
+    </div>
+  );
+}

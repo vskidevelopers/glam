@@ -147,175 +147,193 @@ function Checkout() {
       </div>
 
       <main className="grid flex-1 items-start gap-4 px-4 sm:px-6 sm:py-10 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-2"
-        >
-          <div className="grid gap-4 sm:grid-cols-1">
-            <Tabs defaultValue="checkOutDetailForm">
-              {/* Checkout Details Tab */}
-              <TabsContent value="checkOutDetailForm">
-                <Card className="sm:col-span-2">
-                  <CardHeader className="pb-3">
-                    <CardTitle>Checkout Details Form</CardTitle>
-                    <CardDescription className="max-w-lg text-balance leading-relaxed">
-                      {user
-                        ? "Provide your delivery information"
-                        : "Enter Your Details in the form below"}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-3">
-                    {/* Customer Details */}
-                    {!user && (
-                      <div className="mb-4">
-                        <label className="block mb-2 font-medium">Name</label>
-                        <input
-                          type="text"
-                          {...register("name", { required: true })}
-                          className="w-full border rounded px-3 py-2"
-                        />
-                        {errors.name && (
-                          <p className="text-red-600">Name is required.</p>
-                        )}
-                      </div>
-                    )}
-                    <div className="mb-4">
-                      <label className="block mb-2 font-medium">
-                        Phone Number
-                      </label>
-                      <input
-                        type="tel"
-                        {...register("phone", { required: true })}
-                        className="w-full border rounded px-3 py-2"
-                      />
-                      {errors.phone && (
-                        <p className="text-red-600">
-                          Phone number is required.
-                        </p>
+        {cart && cart.items?.length > 0 ? (
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-2"
+          >
+            <div className="grid gap-4 sm:grid-cols-1">
+              <Tabs defaultValue="checkOutDetailForm">
+                {/* Checkout Details Tab */}
+                <TabsContent value="checkOutDetailForm">
+                  <Card className="sm:col-span-2">
+                    <CardHeader className="pb-3">
+                      <CardTitle>Checkout Details Form</CardTitle>
+                      <CardDescription className="max-w-lg text-balance leading-relaxed">
+                        {user
+                          ? "Provide your delivery information"
+                          : "Enter Your Details in the form below"}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-3">
+                      {/* Customer Details */}
+                      {!user && (
+                        <div className="mb-4">
+                          <label className="block mb-2 font-medium">Name</label>
+                          <input
+                            type="text"
+                            {...register("name", { required: true })}
+                            className="w-full border rounded px-3 py-2"
+                          />
+                          {errors.name && (
+                            <p className="text-red-600">Name is required.</p>
+                          )}
+                        </div>
                       )}
-                    </div>
-                    {!user && (
-                      <div className="mb-4">
-                        <label className="block mb-2 font-medium">Email</label>
-                        <input
-                          type="email"
-                          {...register("email", { required: true })}
-                          className="w-full border rounded px-3 py-2"
-                        />
-                        {errors.email && (
-                          <p className="text-red-600">Email is required.</p>
-                        )}
-                      </div>
-                    )}
-                    <div className="mb-4">
-                      <label className="block mb-2 font-medium">
-                        Location / Address
-                      </label>
-                      <input
-                        type="text"
-                        {...register("location", { required: true })}
-                        className="w-full border rounded px-3 py-2"
-                      />
-                      {errors.location && (
-                        <p className="text-red-600">Location is required.</p>
-                      )}
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <TabsList>
-                      <TabsTrigger value="paymentMethodForm">
-                        Continue to Payment Method
-                      </TabsTrigger>
-                    </TabsList>
-                  </CardFooter>
-                </Card>
-              </TabsContent>
-
-              {/* Payment Method Tab */}
-              <TabsContent value="paymentMethodForm">
-                <Card className="sm:col-span-2">
-                  <CardHeader className="pb-3">
-                    <CardTitle>Payment Method</CardTitle>
-                    <CardDescription className="max-w-lg text-balance leading-relaxed">
-                      Select your preferred payment method
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex gap-4 mb-4">
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="radio"
-                          value="Mpesa"
-                          checked={paymentMethod === "Mpesa"}
-                          onChange={() => setPaymentMethod("Mpesa")}
-                          className="form-radio"
-                        />
-                        Mpesa
-                      </label>
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="radio"
-                          value="Pay on Delivery"
-                          checked={paymentMethod === "Pay on Delivery"}
-                          onChange={() => setPaymentMethod("Pay on Delivery")}
-                          className="form-radio"
-                        />
-                        Pay on Delivery{" "}
-                        <Badge className="bg-emerald-500">Popular</Badge>
-                      </label>
-                    </div>
-                    {paymentMethod === "Mpesa" && (
                       <div className="mb-4">
                         <label className="block mb-2 font-medium">
-                          Lipa Na Mpesa
-                        </label>
-
-                        {/* Instructions for Mpesa Payment */}
-                        <p className="text-gray-600 mb-3">
-                          For Lipa Na Mpesa, use the following details:
-                          <br />
-                          <strong>Paybill:</strong> xxxxxx
-                          <br />
-                          <strong>Account Number:</strong> xxxxxx
-                          <br />
-                          After making the payment, paste the Mpesa code below
-                          for verification before placing your order.
-                        </p>
-
-                        {/* Mpesa Code Input */}
-                        <label className="block mb-2 font-medium">
-                          Mpesa Code
+                          Phone Number
                         </label>
                         <input
-                          type="text"
-                          {...register("mpesaCode", {
-                            required: paymentMethod === "Mpesa",
-                          })}
-                          placeholder="Enter Mpesa code"
+                          type="tel"
+                          {...register("phone", { required: true })}
                           className="w-full border rounded px-3 py-2"
                         />
-
-                        {errors.mpesaCode && (
+                        {errors.phone && (
                           <p className="text-red-600">
-                            Mpesa code is required.
+                            Phone number is required.
                           </p>
                         )}
                       </div>
-                    )}
-                  </CardContent>
-                  <CardFooter>
-                    <Button
-                      type="submit"
-                      className="bg-green-600 text-white py-2 px-6 rounded-md"
-                    >
-                      Place Order
-                    </Button>
-                  </CardFooter>
-                </Card>
-              </TabsContent>
-            </Tabs>
+                      {!user && (
+                        <div className="mb-4">
+                          <label className="block mb-2 font-medium">
+                            Email
+                          </label>
+                          <input
+                            type="email"
+                            {...register("email", { required: true })}
+                            className="w-full border rounded px-3 py-2"
+                          />
+                          {errors.email && (
+                            <p className="text-red-600">Email is required.</p>
+                          )}
+                        </div>
+                      )}
+                      <div className="mb-4">
+                        <label className="block mb-2 font-medium">
+                          Location / Address
+                        </label>
+                        <input
+                          type="text"
+                          {...register("location", { required: true })}
+                          className="w-full border rounded px-3 py-2"
+                        />
+                        {errors.location && (
+                          <p className="text-red-600">Location is required.</p>
+                        )}
+                      </div>
+                    </CardContent>
+                    <CardFooter>
+                      <TabsList>
+                        <TabsTrigger value="paymentMethodForm">
+                          Continue to Payment Method
+                        </TabsTrigger>
+                      </TabsList>
+                    </CardFooter>
+                  </Card>
+                </TabsContent>
+
+                {/* Payment Method Tab */}
+                <TabsContent value="paymentMethodForm">
+                  <Card className="sm:col-span-2">
+                    <CardHeader className="pb-3">
+                      <CardTitle>Payment Method</CardTitle>
+                      <CardDescription className="max-w-lg text-balance leading-relaxed">
+                        Select your preferred payment method
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex gap-4 mb-4">
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="radio"
+                            value="Mpesa"
+                            checked={paymentMethod === "Mpesa"}
+                            onChange={() => setPaymentMethod("Mpesa")}
+                            className="form-radio"
+                          />
+                          Mpesa
+                        </label>
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="radio"
+                            value="Pay on Delivery"
+                            checked={paymentMethod === "Pay on Delivery"}
+                            onChange={() => setPaymentMethod("Pay on Delivery")}
+                            className="form-radio"
+                          />
+                          Pay on Delivery{" "}
+                          <Badge className="bg-emerald-500">Popular</Badge>
+                        </label>
+                      </div>
+                      {paymentMethod === "Mpesa" && (
+                        <div className="mb-4">
+                          <label className="block mb-2 font-medium">
+                            Lipa Na Mpesa
+                          </label>
+
+                          {/* Instructions for Mpesa Payment */}
+                          <p className="text-gray-600 mb-3">
+                            For Lipa Na Mpesa, use the following details:
+                            <br />
+                            <strong>Buy Goods Till No:</strong> 8930612
+                            <br />
+                            <strong>Amount : </strong>
+                            {cart?.totalPrice}
+                            <br />
+                            <strong>Account Name:</strong> Glam Your Kitchen
+                            <br />
+                            After making the payment, paste the Mpesa code below
+                            for verification before placing your order.
+                          </p>
+
+                          {/* Mpesa Code Input */}
+                          <label className="block mb-2 font-medium">
+                            Mpesa Code
+                          </label>
+                          <input
+                            type="text"
+                            {...register("mpesaCode", {
+                              required: paymentMethod === "Mpesa",
+                            })}
+                            placeholder="Enter Mpesa code"
+                            className="w-full border rounded px-3 py-2"
+                          />
+
+                          {errors.mpesaCode && (
+                            <p className="text-red-600">
+                              Mpesa code is required.
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </CardContent>
+                    <CardFooter>
+                      <Button
+                        type="submit"
+                        className="bg-green-600 text-white py-2 px-6 rounded-md"
+                      >
+                        Place Order
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </div>
+          </form>
+        ) : (
+          <div className="col-span-3 flex flex-col items-center justify-center py-10">
+            <p className="text-lg font-semibold text-red-600">
+              Your cart is empty. Please add items to proceed with checkout.
+            </p>
+            <Link to="/shop">
+              <Button className="bg-green-600 text-white mt-4">
+                Go to Shop
+              </Button>
+            </Link>
           </div>
-        </form>
+        )}
         <FloatingOrderSummary cart={cart} />
       </main>
     </div>

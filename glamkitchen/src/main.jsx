@@ -31,6 +31,7 @@ import ShopUi from "./layouts/ShopUi";
 import Login from "./auth/Login";
 import AdminCategories from "./pages/admin/AdminCategories";
 import TrackOrder from "./pages/TrackOrder";
+import Categories from "./components/Categories";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -50,6 +51,9 @@ const router = createBrowserRouter(
 
         {/* Cart Page */}
         <Route path="cart" element={<Cart />} />
+
+        {/* Categories Page */}
+        <Route path="categories" element={<Categories />} />
 
         {/* Checkout Page */}
         <Route path="checkout" element={<Checkout />} />

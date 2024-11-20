@@ -88,52 +88,62 @@ const ExpressOrderForm = ({ CART_KEY }) => {
 
       {/* Scrollable Area for Form Content */}
       <ScrollArea className="h-[90%]">
-        {/* Product Details Table */}
-        {cart?.items?.map((item, index) => (
-          <div key={index} className="w-full rounded-lg mb-4">
-            <div className="grid grid-cols-3 p-4">
-              <div className="col-span-1 flex justify-center">
-                <img
-                  src={item.productImage}
-                  alt={item.productName}
-                  className="w-20 h-20 object-cover rounded"
-                />
+        {/* Check if cart is empty */}
+        {cart?.items?.length === 0 || !cart ? (
+          <div className="text-center text-gray-600 mt-8">
+            <p>Your cart is empty.</p>
+            <p>Add items to your cart to proceed with the order.</p>
+          </div>
+        ) : (
+          <>
+            {/* Product Details Table */}
+            {cart?.items.map((item, index) => (
+              <div key={index} className="w-full rounded-lg mb-4">
+                <div className="grid grid-cols-3 p-4">
+                  <div className="col-span-1 flex justify-center">
+                    <img
+                      src={item.productImage}
+                      alt={item.productName}
+                      className="w-20 h-20 object-cover rounded"
+                    />
+                  </div>
+                  <div className="col-span-1 flex flex-col justify-center items-start">
+                    <h3 className="font-semibold text-gray-800">
+                      {item.productName}
+                    </h3>
+                    <p className="text-gray-500">Price: Ksh {item.price}</p>
+                    <p className="text-gray-500">Quantity: {item.quantity}</p>
+                  </div>
+                  <div className="col-span-1 flex items-center justify-end">
+                    <p className="text-gray-800 font-semibold">
+                      Ksh {item.subtotal}
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div className="col-span-1 flex flex-col justify-center items-start">
-                <h3 className="font-semibold text-gray-800">
-                  {item.productName}
-                </h3>
-                <p className="text-gray-500">Price: Ksh {item.price}</p>
-                <p className="text-gray-500">Quantity: {item.quantity}</p>
+            ))}
+
+            {/* Subtotal, Tax, and Total Row */}
+            <div className="bg-gray-100 border border-gray-300 p-4 border-t border-gray-300">
+              <div className="grid grid-cols-3 mb-2">
+                <p className="text-gray-600 col-span-2">Subtotal</p>
+                <p className="text-gray-800 font-semibold text-right">
+                  Ksh {calculateTotal(cart?.items || [])}
+                </p>
               </div>
-              <div className="col-span-1 flex items-center justify-end">
-                <p className="text-gray-800 font-semibold">
-                  Ksh {item.subtotal}
+              <div className="grid grid-cols-3 mb-2">
+                <p className="text-gray-600 col-span-2">Tax</p>
+                <p className="text-gray-800 font-semibold text-right">Ksh 0</p>
+              </div>
+              <div className="grid grid-cols-3 font-bold">
+                <p className="text-gray-600 col-span-2">Total</p>
+                <p className="text-gray-800 text-right">
+                  Ksh {calculateTotal(cart?.items || [])}
                 </p>
               </div>
             </div>
-          </div>
-        ))}
-
-        {/* Subtotal, Tax, and Total Row */}
-        <div className="bg-gray-100 border border-gray-300 p-4 border-t border-gray-300">
-          <div className="grid grid-cols-3 mb-2">
-            <p className="text-gray-600 col-span-2">Subtotal</p>
-            <p className="text-gray-800 font-semibold text-right">
-              Ksh {calculateTotal(cart?.items || [])}
-            </p>
-          </div>
-          <div className="grid grid-cols-3 mb-2">
-            <p className="text-gray-600 col-span-2">Tax</p>
-            <p className="text-gray-800 font-semibold text-right">Ksh 0</p>
-          </div>
-          <div className="grid grid-cols-3 font-bold">
-            <p className="text-gray-600 col-span-2">Total</p>
-            <p className="text-gray-800 text-right">
-              Ksh {calculateTotal(cart?.items || [])}
-            </p>
-          </div>
-        </div>
+          </>
+        )}
 
         {/* Customer Form Fields */}
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -222,7 +232,12 @@ const ExpressOrderForm = ({ CART_KEY }) => {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-lg"
+            className={`w-full py-2 rounded-lg ${
+              cart?.items?.length > 0
+                ? "bg-blue-600 text-white cursor-pointer"
+                : "bg-gray-400 text-gray-200 cursor-not-allowed"
+            }`}
+            disabled={!cart || cart?.items?.length === 0}
           >
             BUY IT NOW
           </button>

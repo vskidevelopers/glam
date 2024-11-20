@@ -62,7 +62,7 @@ export default function ShopGrid() {
               console.log(`Item ${i + 1}:`, data); // Logs each item in the array
               return (
                 <div key={i}>
-                  <ProductCard product={data} index={1 + i} />
+                  <ProductCard product={data} index={1 + i} loading={loading} />
                 </div>
               );
             })

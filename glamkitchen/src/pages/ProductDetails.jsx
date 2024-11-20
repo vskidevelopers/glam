@@ -266,6 +266,7 @@ function ProductDetails() {
                     <DialogTrigger>
                       <Button className="relative bg-green-500 w-full text-white px-6 py-2 rounded-md hover:bg-green-600">
                         <span className="animate-ping absolute -right-2 -top-2 inline-flex h-4 w-4 rounded-full bg-green-400 opacity-75"></span>
+                        <span className="absolute -right-2 -top-2 inline-flex h-4 w-4 rounded-full bg-green-400 opacity-100"></span>
                         Express Order
                       </Button>
                     </DialogTrigger>
