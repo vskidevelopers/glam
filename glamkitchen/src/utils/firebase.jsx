@@ -200,6 +200,8 @@ export const useAuthenticationFunctions = () => {
   };
 
   const createClientUser = async () => {
+    const provider = new GoogleAuthProvider();
+
     try {
       // Sign in with Google popup
       const result = await signInWithPopup(auth, provider);
