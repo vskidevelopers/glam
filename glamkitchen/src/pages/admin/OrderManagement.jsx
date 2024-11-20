@@ -37,6 +37,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useEffect, useState } from "react";
+import { useOrdersFunctions } from "@/utils/firebase";
 
 export default function OrderManagement() {
   const [loading, setLoading] = useState(false);
@@ -44,6 +45,8 @@ export default function OrderManagement() {
   const [pendingOrders, setPendingOrders] = useState([]);
   const [fulfilledOrders, setFulfilledOrders] = useState([]);
   const [rejecteOrders, setRejectedOrders] = useState([]);
+
+  const { getAllOrders, getAllOrdersbyStatus } = useOrdersFunctions();
 
   const handleGetOrders = async () => {
     const pendingOrdersData = await getAllOrdersbyStatus("pending");
