@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -10,8 +10,29 @@ import {
 import { Copy, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-function FloatingOrderSummary({ cart }) {
+function FloatingOrderSummary({ cart, orderId }) {
   console.log("cart object in floating order summary >>> ", cart);
+
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    // Copy the order ID to the clipboard
+    navigator.clipboard
+      .writeText(orderId)
+      .then(() => {
+        // Set copied to true to indicate success
+        setCopied(true);
+
+        // Save the order ID in local storage
+        localStorage.setItem("orderId", orderId);
+
+        // Reset the copied state after a short delay (to show feedback)
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch((err) => {
+        console.error("Failed to copy: ", err);
+      });
+  };
 
   // Check if the cart is empty
   if (!cart || !cart.items || cart.items.length === 0) {
@@ -28,7 +49,7 @@ function FloatingOrderSummary({ cart }) {
   }
 
   // Extract fields from the updated cart structure
-  const { cartId, items, totalQuantity, totalPrice, createdAt } = cart;
+  const { id, items, totalQuantity, totalPrice, createdAt } = cart;
 
   return (
     <div>
@@ -36,14 +57,16 @@ function FloatingOrderSummary({ cart }) {
         <CardHeader className="flex flex-row items-start bg-muted/50">
           <div className="grid gap-0.5">
             <CardTitle className="group flex items-center gap-2 text-lg">
-              Order {cartId}
+              Order {orderId ? orderId : id}
               <Button
                 size="icon"
                 variant="outline"
                 className="h-6 w-6 opacity-0 transition-opacity group-hover:opacity-100"
+                onClick={handleCopy}
               >
                 <Copy className="h-3 w-3" />
                 <span className="sr-only">Copy Order ID</span>
+                {copied && <span className="ml-2 text-green-500">Copied!</span>}
               </Button>
             </CardTitle>
             <CardDescription>

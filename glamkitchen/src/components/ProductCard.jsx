@@ -1,4 +1,4 @@
-import { Maximize, Heart } from "lucide-react";
+import { Maximize, Heart, RefreshCcwDot } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "./ui/badge";
 import {
@@ -27,58 +27,80 @@ import ExpressOrderForm from "./forms/ExpressOrderForm";
 
 function ProductCard({ product, index, loading }) {
   console.log(`product # ${index} >>`, product);
-  const { createCart, addItemToCart, getCart, deleteCartItem } =
-    useCartFunctions();
+  const {
+    addItemToCart,
+    getCart,
+    createCart,
+    deleteCartItem,
+    updateCartItemQuantity,
+  } = useCartFunctions();
 
-  const [cartItems, setCartItems] = useState(() => {
-    const CART_KEY = "cart";
-    const storedCart = JSON.parse(localStorage.getItem(CART_KEY));
-    return storedCart ? storedCart.items : [];
-  });
+  const [cartItems, setCartItems] = useState([]);
+  const [subTotal, setSubTotal] = useState(0);
+  const [cartId, setCartId] = useState(null);
+  const [fetchLoading, setFetchLoading] = useState(false);
 
   // Handle quantity changes
-  const handleQuantityChange = (productId, newQuantity) => {
-    setCartItems((prevItems) =>
-      prevItems.map((item) =>
-        item.productId === productId ? { ...item, quantity: newQuantity } : item
-      )
-    );
+  const handleQuantityChange = async (product, newQuantity) => {
+    try {
+      const updateResult = await updateCartItemQuantity(
+        product.productId,
+        newQuantity
+      );
+      if (updateResult.success) {
+        setCartItems(updateResult.data.items); // Update cartItems state
+        setSubTotal(updateResult.data.totalPrice); // Update subtotal
+        // ... other state updates as needed
+      } else {
+        console.error("Error updating item quantity:", updateResult.error);
+        // Handle error, e.g., display an error message
+      }
+      handleFetchCart();
+    } catch (error) {
+      console.error("Error updating item quantity:", error);
+      // Handle error, e.g., display an error message
+      handleFetchCart();
+    }
   };
 
   // Handle item removal
-  const CART_KEY = "cart";
-  const handleRemoveItem = (productId) => {
-    const updatedCartItems = cartItems.filter(
-      (item) => item.productId !== productId
-    );
-
-    setCartItems(updatedCartItems);
-
-    // Update local storage
-    const storedCart = JSON.parse(localStorage.getItem(CART_KEY));
-    if (storedCart) {
-      const updatedCart = {
-        ...storedCart,
-        items: updatedCartItems,
-        totalQuantity: updatedCartItems.reduce(
-          (acc, item) => acc + item.quantity,
-          0
-        ),
-        totalPrice: updatedCartItems.reduce(
-          (acc, item) => acc + item.subtotal,
-          0
-        ),
-      };
-      localStorage.setItem(CART_KEY, JSON.stringify(updatedCart));
+  const handleRemoveItem = async (productId) => {
+    try {
+      const deleteResult = await deleteCartItem(productId);
+      if (deleteResult.success) {
+        setCartItems(deleteResult.data.items);
+        setSubTotal(deleteResult.data.totalPrice);
+      } else {
+        console.error("Error deleting item from cart:", deleteResult.error);
+        alert("An error occurred while deleting the item. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error deleting item from cart:", error);
+      alert("An error occurred while deleting the item. Please try again.");
     }
   };
-  const [subTotal, setSubTotal] = useState(0);
 
   const handleFetchCart = async () => {
-    const getCartResponse = await getCart();
-    console.log("getCartResponse >> ", getCartResponse);
-    setCartItems(getCartResponse?.items);
-    setSubTotal(getCartResponse?.totalPrice);
+    setFetchLoading(true);
+    try {
+      const getCartResponse = await getCart();
+      console.log("getCartResponse >> ", getCartResponse);
+      if (getCartResponse?.success) {
+        setCartItems(getCartResponse.data.items);
+        setSubTotal(getCartResponse.data.totalPrice);
+        setCartId(getCartResponse.data.cartId); // Store the cartId
+        setFetchLoading(false);
+      } else {
+        console.log(
+          "decide on what to do if cart response has a success value of false"
+        );
+        setFetchLoading(false);
+      }
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+      alert("An error occurred while fetching the cart. Please try again.");
+      setFetchLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -99,58 +121,48 @@ function ProductCard({ product, index, loading }) {
     console.log("Item to add to cart >> ", item);
 
     try {
-      // Retrieve the cart from localStorage or create one
-      let cart = localStorage.getItem(CART_KEY);
-      if (!cart) {
-        cart = createCart(); // If no cart, create one
-      } else {
-        cart = JSON.parse(cart);
+      // 1. Check for existing cart ID in localStorage
+      let cartId = localStorage.getItem("currentCartId");
+
+      // 2. If no cart exists, create one
+      if (!cartId) {
+        const newCartResult = await createCart(); // Call your createCart function
+        if (newCartResult.success) {
+          cartId = newCartResult.data;
+          localStorage.setItem("currentCartId", cartId);
+        } else {
+          console.error("Error creating cart:", newCartResult.error);
+          alert("An error occurred while creating a cart. Please try again.");
+          return; // Stop execution if cart creation fails
+        }
       }
 
-      // Check if the item already exists in the cart
-      const existingItemIndex = cart.items.findIndex(
-        (cartItem) => cartItem.productId === item.productId
-      );
+      // 3. Add the item to the cart
+      const addItemResult = await addItemToCart(item, cartId); // Pass cartId to addItemToCart
+      console.log("addItemResult >> ", addItemResult);
 
-      if (existingItemIndex !== -1) {
-        // Item exists, open the Sheet to display the cart
-        console.log("Item already in cart. Opening cart...");
+      if (addItemResult.success) {
+        // Update cart state using the setState function
+        setCartItems(addItemResult.data.items); // Update items
         handleFetchCart();
-        setCartItems(cart.items); // Update the state with the current cart items
-        setSubTotal(cart.totalPrice); // Update the subtotal state
-        // You can programmatically open the Sheet here if needed
-        return;
+        setCartId(addItemResult.data.cartId); // Update cartId
+        // ... other state updates as needed
+
+        // Optionally, display a success message to the user
+        alert("Item added to cart successfully!");
+        console.log("cart state >> ", cartItems);
+      } else {
+        // Handle errors
+        console.error("Error adding item to cart:", addItemResult.error);
+        alert(
+          "An error occurred while adding the item to your cart. Please try again."
+        );
       }
-
-      // Item does not exist, add it with quantity 1
-      const newItem = {
-        ...item,
-        price:
-          typeof item.price === "string"
-            ? parseInt(item.price, 10)
-            : item.price,
-        quantity: 1,
-        subtotal:
-          typeof item.price === "string"
-            ? parseInt(item.price, 10)
-            : item.price,
-      };
-      cart.items.push(newItem);
-
-      // Update the cart's total quantity and price
-      cart.totalQuantity += 1;
-      cart.totalPrice += newItem.subtotal;
-
-      // Save the updated cart to localStorage
-      localStorage.setItem(CART_KEY, JSON.stringify(cart));
-      console.log("Item added to cart:", cart);
-
-      // Update state and open Sheet
-      handleFetchCart();
-      setCartItems(cart.items);
-      setSubTotal(cart.totalPrice);
     } catch (error) {
-      console.log("An error occurred while adding item to cart >> ", error);
+      console.error("An error occurred while adding item to cart >> ", error);
+      alert(
+        "An error occurred while adding the item to your cart. Please try again."
+      );
     }
   };
 
@@ -164,13 +176,9 @@ function ProductCard({ product, index, loading }) {
     return badges;
   };
   const handleExpressOrder = () => {
-    let cart = localStorage.getItem(CART_KEY);
-    if (cart) {
-      cart = JSON.parse(cart); // Parse the cart string into an object
-      console.log("Cart to post >>", cart); // Log the cart as an object
-    } else {
-      console.log("Cart is empty or not found.");
-    }
+    // No need to use localStorage here, as you're using Firebase
+    // You can directly access the cart data from the cartItems state
+    console.log("Cart to post >>", cartItems);
   };
 
   if (loading) {
@@ -237,7 +245,24 @@ function ProductCard({ product, index, loading }) {
 
                 <SheetContent>
                   <SheetHeader>
-                    <SheetTitle>Your Cart</SheetTitle>
+                    <SheetTitle>
+                      Your Cart{" "}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 gap-1"
+                        onClick={handleFetchCart}
+                      >
+                        <RefreshCcwDot
+                          className={`h-3.5 w-3.5 ${
+                            fetchLoading ? "animate-spin" : ""
+                          }`}
+                        />
+                        <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                          Refresh
+                        </span>
+                      </Button>
+                    </SheetTitle>
                     <SheetDescription>
                       Review your selected items and proceed to checkout.
                     </SheetDescription>
@@ -259,7 +284,7 @@ function ProductCard({ product, index, loading }) {
                     <div className="absolute bottom-5 flex flex-col items-end mt-6 border-t pt-4 ">
                       <div className="flex justify-between w-full mb-4 px-2">
                         <p className="text-lg font-semibold">Subtotal:</p>
-                        <p className="text-lg font-bold">${subTotal}</p>
+                        <p className="text-lg font-bold">Ksh {subTotal}</p>
                       </div>
                       <div className="flex flex-col gap-4 w-full space-x-4">
                         <Dialog>
@@ -270,12 +295,12 @@ function ProductCard({ product, index, loading }) {
                             Order Now
                           </DialogTrigger>
                           <DialogContent className="w-[650px] max-w-4xl">
-                            <ExpressOrderForm CART_KEY={CART_KEY} />
+                            <ExpressOrderForm cartId={cartId} />
                           </DialogContent>
                         </Dialog>
 
                         <Link
-                          to="/home/checkout"
+                          to={`/home/checkout?cartId=${cartId}`} // Pass cartId to checkout
                           className="bg-green-500 text-white px-6 py-2 rounded-full hover:bg-green-600"
                         >
                           Continue to Checkout

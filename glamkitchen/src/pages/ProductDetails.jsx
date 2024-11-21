@@ -2,9 +2,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import HeroSection from "@/sections/HeroSection";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Heart } from "lucide-react";
+import { ShoppingCart, Heart, RefreshCcwDot } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useCartFunctions, useProductFunctions } from "@/utils/firebase";
+import { Link } from "react-router-dom";
+import { useProductFunctions, useCartFunctions } from "@/utils/firebase";
 import CartItem from "@/components/CartItem";
 import ExpressOrderForm from "@/components/forms/ExpressOrderForm";
 import {
@@ -24,57 +25,29 @@ import {
   SheetFooter,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import ProductCard from "@/components/ProductCard"; // Import ProductCard
 import "./styles/productDetails.css";
 
 function ProductDetails() {
   const navigate = useNavigate();
   const { productId } = useParams(); // Get productId from URL params
-  const { getCart } = useCartFunctions();
-  const CART_KEY = "cart";
   const { fetchProductDetail } = useProductFunctions();
+  const {
+    addItemToCart,
+    getCart,
+    createCart,
+    deleteCartItem,
+    updateCartItemQuantity,
+  } = useCartFunctions(); // Import cart functions
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1); // Default quantity to 1
   const [loading, setLoading] = useState(true);
-  const [cartItems, setCartItems] = useState(() => {
-    const storedCart = JSON.parse(localStorage.getItem(CART_KEY));
-    return storedCart?.items || []; // Initialize cartItems from localStorage
-  });
+  const [cartItems, setCartItems] = useState([]);
   const [subTotal, setSubTotal] = useState(0);
-  const handleRemoveItem = (productId) => {
-    const updatedCartItems = cartItems.filter(
-      (item) => item.productId !== productId
-    );
+  const [cartId, setCartId] = useState(null);
+  const [fetchLoading, setFetchLoading] = useState(false);
 
-    setCartItems(updatedCartItems);
-
-    // Update local storage
-    const storedCart = JSON.parse(localStorage.getItem(CART_KEY));
-    if (storedCart) {
-      const updatedCart = {
-        ...storedCart,
-        items: updatedCartItems,
-        totalQuantity: updatedCartItems.reduce(
-          (acc, item) => acc + item.quantity,
-          0
-        ),
-        totalPrice: updatedCartItems.reduce(
-          (acc, item) => acc + item.subtotal,
-          0
-        ),
-      };
-      localStorage.setItem(CART_KEY, JSON.stringify(updatedCart));
-    }
-  };
-  const handleFetchCart = async () => {
-    const getCartResponse = await getCart();
-    console.log("getCartResponse >> ", getCartResponse);
-    setCartItems(getCartResponse?.items);
-    setSubTotal(getCartResponse?.totalPrice);
-  };
-
-  useEffect(() => {
-    handleFetchCart();
-  }, []);
+  // Function to handle removing an item from the cart
 
   // Function to fetch product details
   const getProductDetails = async () => {
@@ -96,88 +69,127 @@ function ProductDetails() {
     getProductDetails();
   }, [productId]);
 
-  // Function to handle adding item to the cart
-  const handleAddItemToCart = (item) => {
+  // Function to handle adding an item to the cart
+  const handleAddItemToCart = async (item) => {
     console.log("Item to add to cart >> ", item);
 
     try {
-      // Retrieve the cart from localStorage or create one
-      let cart = localStorage.getItem(CART_KEY);
-      if (!cart) {
-        // If no cart exists, create an initial cart structure
-        cart = {
-          items: [],
-          totalPrice: 0,
-          totalQuantity: 0,
-        };
-      } else {
-        cart = JSON.parse(cart);
+      // 1. Check for existing cart ID in localStorage
+      let cartId = localStorage.getItem("currentCartId");
+
+      // 2. If no cart exists, create one
+      if (!cartId) {
+        const newCartResult = await createCart(); // Call your createCart function
+        if (newCartResult.success) {
+          cartId = newCartResult.data;
+          localStorage.setItem("currentCartId", cartId);
+        } else {
+          console.error("Error creating cart:", newCartResult.error);
+          alert("An error occurred while creating a cart. Please try again.");
+          return; // Stop execution if cart creation fails
+        }
       }
 
-      // Check if the item already exists in the cart
-      const existingItemIndex = cart.items.findIndex(
-        (cartItem) => cartItem.productId === item.productId
-      );
+      // 3. Add the item to the cart
+      const addItemResult = await addItemToCart(item, cartId); // Pass cartId to addItemToCart
+      console.log("addItemResult >> ", addItemResult);
 
-      if (existingItemIndex !== -1) {
-        // Item already exists, no need to update quantity or add again
-        console.log("Item already in cart. Opening cart...");
+      if (addItemResult.success) {
+        // Update cart state using the setState function
+        setCartItems(addItemResult.data.items); // Update items
         handleFetchCart();
-        setCartItems(cart.items); // Update state with the current cart items
-        setSubTotal(cart.totalPrice); // Update the subtotal state
-        return; // Exit early to prevent adding again
+        setCartId(addItemResult.data.cartId); // Update cartId
+        // ... other state updates as needed
+
+        // Optionally, display a success message to the user
+        alert("Item added to cart successfully!");
+        console.log("cart state >> ", cartItems);
+      } else {
+        // Handle errors
+        console.error("Error adding item to cart:", addItemResult.error);
+        alert(
+          "An error occurred while adding the item to your cart. Please try again."
+        );
       }
-
-      // Item does not exist, add it with a quantity of 1
-      const newItem = {
-        ...item,
-        price:
-          typeof item.price === "string"
-            ? parseInt(item.price, 10)
-            : item.price,
-        quantity: 1,
-        subtotal:
-          typeof item.price === "string"
-            ? parseInt(item.price, 10)
-            : item.price,
-      };
-      cart.items.push(newItem);
-
-      // Update the cart's total quantity and total price
-      cart.totalQuantity += 1;
-      cart.totalPrice += newItem.subtotal;
-
-      // Save the updated cart to localStorage
-      localStorage.setItem(CART_KEY, JSON.stringify(cart));
-      console.log("Item added to cart:", cart);
-
-      // Update state and open cart
-      handleFetchCart();
-      setCartItems(cart.items); // Update state with new cart items
-      setSubTotal(cart.totalPrice); // Update the subtotal state
     } catch (error) {
       console.error("An error occurred while adding item to cart >> ", error);
+      alert(
+        "An error occurred while adding the item to your cart. Please try again."
+      );
     }
   };
 
-  // Function to handle quantity change
-  const handleQuantityChange = (e) => {
-    const newQuantity = Math.max(1, Number(e.target.value)); // Prevent quantity from going below 1
-    setQuantity(newQuantity);
+  // Handle quantity changes
+  const handleQuantityChange = async (product, newQuantity) => {
+    try {
+      const updateResult = await updateCartItemQuantity(
+        product.productId,
+        newQuantity
+      );
+      if (updateResult.success) {
+        setCartItems(updateResult.data.items); // Update cartItems state
+        setSubTotal(updateResult.data.totalPrice); // Update subtotal
+        // ... other state updates as needed
+      } else {
+        console.error("Error updating item quantity:", updateResult.error);
+        // Handle error, e.g., display an error message
+      }
+      handleFetchCart();
+    } catch (error) {
+      console.error("Error updating item quantity:", error);
+      // Handle error, e.g., display an error message
+      handleFetchCart();
+    }
   };
 
-  // Functions for increasing and decreasing quantity
-  const handleIncrease = () => {
-    setQuantity((prev) => prev + 1);
+  // Handle item removal
+  const handleRemoveItem = async (productId) => {
+    try {
+      const deleteResult = await deleteCartItem(productId);
+      if (deleteResult.success) {
+        setCartItems(deleteResult.data.items);
+        setSubTotal(deleteResult.data.totalPrice);
+      } else {
+        console.error("Error deleting item from cart:", deleteResult.error);
+        alert("An error occurred while deleting the item. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error deleting item from cart:", error);
+      alert("An error occurred while deleting the item. Please try again.");
+    }
   };
 
-  const handleDecrease = () => {
-    setQuantity((prev) => (prev > 1 ? prev - 1 : 1)); // Prevent quantity from going below 1
+  const handleFetchCart = async () => {
+    setFetchLoading(true);
+    try {
+      const getCartResponse = await getCart();
+      console.log("getCartResponse >> ", getCartResponse);
+      if (getCartResponse?.success) {
+        setCartItems(getCartResponse.data.items);
+        setSubTotal(getCartResponse.data.totalPrice);
+        setCartId(getCartResponse.data.cartId); // Store the cartId
+        setFetchLoading(false);
+      } else {
+        console.log(
+          "decide on what to do if cart response has a success value of false"
+        );
+        setFetchLoading(false);
+      }
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+      alert("An error occurred while fetching the cart. Please try again.");
+      setFetchLoading(false);
+    }
   };
 
-  // Proceed to checkout page
-  const handleSubmit = () => {
-    navigate("/products/checkout");
+  useEffect(() => {
+    handleFetchCart();
+  }, []);
+
+  const handleExpressOrder = () => {
+    // No need to use localStorage here, as you're using Firebase
+    // You can directly access the cart data from the cartItems state
+    console.log("Cart to post >>", cartItems);
   };
 
   // Show loading state while fetching product data
@@ -231,14 +243,14 @@ function ProductDetails() {
                     style={{ gridTemplateColumns: "repeat(3, 1fr)" }}
                   >
                     <button
-                      onClick={handleDecrease}
+                      // onClick={handleDecrease}
                       className="h-8 flex justify-center items-center rounded-full"
                     >
                       -
                     </button>
                     <span className="font-bold text-center">{quantity}</span>
                     <button
-                      onClick={handleIncrease}
+                      // onClick={handleIncrease}
                       className="h-8 flex justify-center items-center rounded-full"
                     >
                       +
@@ -274,7 +286,7 @@ function ProductDetails() {
                       <DialogHeader>
                         <DialogTitle>Fill the form to order</DialogTitle>
                         <DialogDescription>
-                          <ExpressOrderForm CART_KEY={CART_KEY} />
+                          <ExpressOrderForm cartId={cartId} />
                         </DialogDescription>
                       </DialogHeader>
                     </DialogContent>
@@ -287,16 +299,33 @@ function ProductDetails() {
 
         <SheetContent>
           <SheetHeader>
-            <SheetTitle>Your Cart</SheetTitle>
+            <SheetTitle>
+              Your Cart{" "}
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 gap-1"
+                onClick={handleFetchCart}
+              >
+                <RefreshCcwDot
+                  className={`h-3.5 w-3.5 ${
+                    fetchLoading ? "animate-spin" : ""
+                  }`}
+                />
+                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                  Refresh
+                </span>
+              </Button>
+            </SheetTitle>
             <SheetDescription>
               Review your selected items and proceed to checkout.
             </SheetDescription>
           </SheetHeader>
 
           <div className="py-4">
-            {cartItems?.map((item, i) => (
+            {cartItems?.map((item) => (
               <CartItem
-                key={i}
+                key={item.productId}
                 item={item}
                 onQuantityChange={handleQuantityChange}
                 onRemove={handleRemoveItem}
@@ -314,19 +343,22 @@ function ProductDetails() {
               <div className="flex flex-col gap-4 w-full space-x-4">
                 <Dialog>
                   <DialogTrigger
-                    // onClick={handleExpressOrder}
+                    onClick={handleExpressOrder}
                     className="bg-flame text-white px-6 py-2 rounded-full hover:bg-blue-600"
                   >
-                    View Your Cart
+                    Order Now
                   </DialogTrigger>
                   <DialogContent className="w-[650px] max-w-4xl">
-                    <ExpressOrderForm CART_KEY={CART_KEY} />
+                    <ExpressOrderForm cartId={cartId} />
                   </DialogContent>
                 </Dialog>
 
-                <Button className="bg-green-500 text-white px-6 py-2 rounded-full hover:bg-green-600">
+                <Link
+                  to={`/home/checkout?cartId=${cartId}`} // Pass cartId to checkout
+                  className="bg-green-500 text-white px-6 py-2 rounded-full hover:bg-green-600"
+                >
                   Continue to Checkout
-                </Button>
+                </Link>
               </div>
             </div>
           </SheetFooter>

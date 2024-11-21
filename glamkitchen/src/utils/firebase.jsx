@@ -11,6 +11,7 @@ import {
 import {
   collection,
   doc,
+  addDoc,
   setDoc,
   getDoc,
   getDocs,
@@ -457,7 +458,7 @@ export const useCategoriesFunctions = () => {
 // ///////////////////////////
 export const useOrdersFunctions = () => {
   // Add a new order to a specified sub-collection type
-  const addOrder = async (data, type = "general") => {
+  const addOrder = async (data, type = "GENERAL") => {
     try {
       // Define the orders collection with type-based sub-collection
       const ordersCollectionRef = collection(db, "Orders", type, type);
@@ -469,14 +470,18 @@ export const useOrdersFunctions = () => {
       const newOrderRef = doc(ordersCollectionRef);
       await setDoc(newOrderRef, orderData);
 
-      return { success: true, message: "Order added successfully" };
+      return {
+        success: true,
+        message: "Order added successfully",
+        orderId: newOrderRef.id,
+      };
     } catch (error) {
       return { success: false, message: "Failed to add the order", error };
     }
   };
 
   // Get all orders from a specific sub-collection and status
-  const getAllOrdersbyStatus = async (orderStatus, type = "general") => {
+  const getAllOrdersbyStatus = async (orderStatus, type = "GENERAL") => {
     try {
       // Define the sub-collection path
       const ordersCollectionRef = collection(db, "Orders", type, type);
@@ -515,7 +520,7 @@ export const useOrdersFunctions = () => {
   };
 
   // Update the status of an order by its ID in a specific sub-collection
-  const updateOrderStatusById = async (id, status, type = "general") => {
+  const updateOrderStatusById = async (id, status, type = "GENERAL") => {
     try {
       // Define the specific document path in the sub-collection
       const orderDocRef = doc(db, "Orders", type, type, id);
@@ -546,7 +551,7 @@ export const useOrdersFunctions = () => {
   };
 
   // Get all orders from a specific sub-collection
-  const getAllOrders = async (type = "general") => {
+  const getAllOrders = async (type = "GENERAL") => {
     try {
       // Define the sub-collection path
       const ordersCollectionRef = collection(db, "Orders", type, type);
@@ -579,11 +584,114 @@ export const useOrdersFunctions = () => {
     }
   };
 
+  // Delete an order by its ID in a specific sub-collection
+  const deleteOrder = async (id, type = "GENERAL") => {
+    try {
+      // Define the specific document path in the sub-collection
+      const orderDocRef = doc(db, "Orders", type, type, id);
+
+      // Delete the document
+      await deleteDoc(orderDocRef);
+
+      return {
+        success: true,
+        message: "Order deleted successfully",
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: "Failed to delete the order",
+        error,
+      };
+    }
+  };
+
+  // Track an order by ID and phone number
+  const trackOrder = async (orderId, phoneNumber) => {
+    try {
+      // Check in both sub-collections: "GENERAL" and "SPECIAL"
+      const subCollections = ["GENERAL", "EXPRESS"];
+
+      for (const type of subCollections) {
+        const orderDocRef = doc(db, "Orders", type, type, orderId);
+        const orderSnapshot = await getDoc(orderDocRef);
+
+        if (orderSnapshot.exists()) {
+          const orderData = { ...orderSnapshot.data(), id: orderSnapshot.id };
+          console.log("order data fro tracking from firebase >> ", orderData);
+
+          // Check if the phone number matches (if available)
+          if (orderData?.customer?.phone === phoneNumber) {
+            return {
+              success: true,
+              order: orderData,
+              status: orderData.status,
+              message: `Order ${orderId} found in ${type} sub-collection.`,
+            };
+          }
+        }
+      }
+
+      // Order not found in either sub-collection
+      return {
+        success: false,
+        status: null,
+        message: `Order ${orderId} not found.`,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        status: null,
+        message: "Failed to track the order",
+        error,
+      };
+    }
+  };
+
+  const fetchOrderById = async (id) => {
+    try {
+      // Define the sub-collections to check
+      const subCollections = ["EXPRESS", "GENERAL"];
+
+      // Iterate through each sub-collection
+      for (const type of subCollections) {
+        const orderDocRef = doc(db, "Orders", type, type, id);
+        const orderSnapshot = await getDoc(orderDocRef);
+
+        if (orderSnapshot.exists()) {
+          // Return the order data with its ID
+          return {
+            success: true,
+            data: { id: orderSnapshot.id, ...orderSnapshot.data() },
+            message: `Order retrieved successfully from ${type} sub-collection`,
+          };
+        }
+      }
+
+      // Order not found in either sub-collection
+      return {
+        success: false,
+        data: null,
+        message: "Order not found",
+      };
+    } catch (error) {
+      return {
+        success: false,
+        data: null,
+        message: "Failed to fetch the order",
+        error,
+      };
+    }
+  };
+
   return {
     addOrder,
     getAllOrders,
     getAllOrdersbyStatus,
     updateOrderStatusById,
+    deleteOrder,
+    trackOrder,
+    fetchOrderById,
   };
 };
 export const useNewslettersFunctions = () => {
@@ -706,41 +814,62 @@ export const useNewslettersFunctions = () => {
 // //////////////////////////
 
 export function useCartFunctions() {
-  const CART_KEY = "cart";
+  const cartsCollectionRef = collection(db, "Carts");
 
-  // Create a cart if one doesn't exist
-  const createCart = useCallback(() => {
-    const existingCart = localStorage.getItem(CART_KEY);
+  // Create a cart (Firebase version)
+  const createCart = async () => {
+    console.log("new cart creation initilized");
 
-    if (existingCart) {
-      console.log("Cart already exists:", JSON.parse(existingCart));
-      return JSON.parse(existingCart);
+    try {
+      const newCartDocRef = await addDoc(cartsCollectionRef, {
+        items: [],
+        totalPrice: 0,
+        createdAt: new Date().toISOString(),
+      });
+
+      const cartId = newCartDocRef.id; // Get the auto-generated ID
+      console.log("New cart created in Firebase:", cartId);
+      return { success: true, data: cartId };
+    } catch (error) {
+      console.error("Error creating cart:", error);
+      return { success: false, error };
     }
+  };
 
-    const cartId = `cart_${Date.now()}`;
-    const newCart = {
-      cartId,
-      items: [],
-      totalQuantity: 0,
-      totalPrice: 0,
-      createdAt: new Date().toISOString(),
-    };
+  // Add an item to the cart (Firebase version)
+  const addItemToCart = async (item) => {
+    console.log("add item initilized in firebase >>> ", item);
 
-    localStorage.setItem(CART_KEY, JSON.stringify(newCart));
-    console.log("New cart created:", newCart);
-    return newCart;
-  }, []);
+    try {
+      const cartId = localStorage.getItem("currentCartId"); // Get cart ID from local storage
 
-  // Add an item to the cart
-  const addItemToCart = useCallback(
-    (item) => {
-      let cart = localStorage.getItem(CART_KEY);
+      if (!cartId) {
+        console.log("no cart exists to add your item");
+        console.log("creating one ... ");
 
-      if (!cart) {
-        cart = createCart(); // If no cart, create one
-      } else {
-        cart = JSON.parse(cart);
+        const newCartResult = await createCart(); // Create a new cart if none exists
+        if (newCartResult?.success) {
+          cartId = newCartResult?.data;
+          localStorage.setItem("currentCartId", cartId);
+          console.log("cart created saved in local storage.");
+        } else {
+          return { success: false, error: newCartResult.error };
+        }
       }
+
+      const cartDocRef = doc(cartsCollectionRef, cartId);
+      const cartSnapshot = await getDoc(cartDocRef);
+      console.log(
+        "cart snapshot after finding existing cart >> ",
+        cartSnapshot
+      );
+
+      if (!cartSnapshot.exists()) {
+        return { success: false, message: "Cart not found" };
+      }
+
+      const cartData = { id: cartSnapshot?.id, ...cartSnapshot.data() };
+      console.log("cart data >>> ", cartData);
 
       // Ensure price is an integer
       const price =
@@ -749,15 +878,22 @@ export function useCartFunctions() {
       // Set the default quantity to 1 if not provided
       const quantity = item.quantity || 1;
 
-      const existingItemIndex = cart.items.findIndex(
-        (cartItem) => cartItem.productId === item.productId
+      const existingItemIndex = cartData?.items.findIndex(
+        (cartItem) => cartItem.id === item.id
       );
+      console.log("existingItemIndex >>> ", existingItemIndex);
 
       if (existingItemIndex !== -1) {
-        // Update quantity and subtotal for existing item
-        cart.items[existingItemIndex].quantity += quantity;
-        cart.items[existingItemIndex].subtotal += quantity * price;
+        console.log(
+          "item exists in the existing cart. Returning without updating."
+        );
+        alert("Cart item already exists!"); // Add the alert message
+        return { success: true, data: cartData }; // Return the existing cart data
       } else {
+        console.log(
+          "item doesnot exist but a cart exist. adding new item to cart."
+        );
+
         // Add new item
         const newItem = {
           ...item,
@@ -765,69 +901,151 @@ export function useCartFunctions() {
           quantity,
           subtotal: quantity * price,
         };
-        cart.items.push(newItem);
+        cartData.items.push(newItem);
+
+        // Update total quantity and price
+        cartData.totalPrice += quantity * price;
+
+        // Update the cart document in Firebase
+        await updateDoc(cartDocRef, cartData);
+
+        console.log("Item added to cart in Firebase:", cartData);
+        return { success: true, data: cartData };
+      }
+    } catch (error) {
+      console.error("Error adding item to cart:", error);
+      return { success: false, error };
+    }
+  };
+
+  // Fetch the cart (Firebase version)
+  const getCart = async () => {
+    try {
+      const cartId = localStorage.getItem("currentCartId");
+
+      if (!cartId) {
+        return { success: false, message: "No cart found" };
       }
 
-      // Update total quantity and price
-      cart.totalQuantity += quantity;
-      cart.totalPrice += quantity * price;
+      const cartDocRef = doc(cartsCollectionRef, cartId);
+      const cartSnapshot = await getDoc(cartDocRef);
 
-      // Save updated cart to local storage
-      localStorage.setItem(CART_KEY, JSON.stringify(cart));
-      console.log("Item added to cart:", cart);
-      return { success: true, data: cart };
-    },
-    [createCart]
-  );
+      if (!cartSnapshot.exists()) {
+        return { success: false, message: "Cart not found" };
+      }
 
-  // Get the current cart
-  const getCart = useCallback(() => {
-    const cart = localStorage.getItem(CART_KEY);
-
-    if (cart) {
-      console.log("Fetched cart:", JSON.parse(cart));
-      return JSON.parse(cart);
-    } else {
-      console.log("No cart found");
-      return null;
+      const cartData = cartSnapshot.data();
+      console.log("Fetched cart from Firebase:", cartData);
+      return { success: true, data: cartData };
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+      return { success: false, error };
     }
-  }, []);
+  };
 
-  // Delete an item from the cart
-  const deleteCartItem = useCallback((itemId) => {
-    const cart = localStorage.getItem(CART_KEY);
+  // Delete an item from the cart (Firebase version)
+  const deleteCartItem = async (itemId) => {
+    try {
+      const cartId = localStorage.getItem("currentCartId");
 
-    if (!cart) {
-      console.log("No cart found to delete item from");
-      return null;
+      if (!cartId) {
+        return { success: false, message: "No cart found" };
+      }
+
+      const cartDocRef = doc(cartsCollectionRef, cartId);
+      const cartSnapshot = await getDoc(cartDocRef);
+
+      if (!cartSnapshot.exists()) {
+        return { success: false, message: "Cart not found" };
+      }
+
+      const cartData = cartSnapshot.data();
+
+      // Find the index of the item to delete
+      const itemIndex = cartData.items.findIndex(
+        (item) => item.productId === itemId
+      );
+
+      if (itemIndex === -1) {
+        return { success: false, message: "Item not found in cart" };
+      }
+
+      // Get the reference to the item document to delete
+      const itemDocRef = doc(
+        cartDocRef,
+        "items",
+        cartData.items[itemIndex].id // Assuming you have an 'id' field for each item
+      );
+
+      // Delete the item document
+      await deleteDoc(itemDocRef);
+
+      console.log("Item deleted from cart in Firebase:", itemId);
+      return { success: true, data: itemId }; // Return the deleted item ID
+    } catch (error) {
+      console.error("Error deleting item from cart:", error);
+      return { success: false, error };
     }
+  };
 
-    const parsedCart = JSON.parse(cart);
+  // Update the quantity of an item in the cart
+  const updateCartItemQuantity = async (itemId, newQuantity) => {
+    try {
+      const cartId = localStorage.getItem("currentCartId");
 
-    // Filter out the item to be deleted
-    const updatedItems = parsedCart.items.filter(
-      (item) => item.productId !== itemId
-    );
+      if (!cartId) {
+        return { success: false, message: "No cart found" };
+      }
 
-    if (updatedItems.length === parsedCart.items.length) {
-      console.log("Item not found in cart");
-      return parsedCart;
+      const cartDocRef = doc(cartsCollectionRef, cartId);
+      const cartSnapshot = await getDoc(cartDocRef);
+
+      if (!cartSnapshot.exists()) {
+        return { success: false, message: "Cart not found" };
+      }
+
+      const cartData = cartSnapshot.data();
+
+      // Find the item to update
+      const itemIndex = cartData.items.findIndex(
+        (item) => item.productId === itemId
+      );
+
+      if (itemIndex === -1) {
+        return { success: false, message: "Item not found in cart" };
+      }
+
+      // Update the item's quantity
+      cartData.items[itemIndex].quantity = newQuantity;
+
+      // Calculate the subtotal based on discount price if available
+      const priceToUse = cartData.items[itemIndex].discountPrice
+        ? parseFloat(cartData.items[itemIndex].discountPrice)
+        : cartData.items[itemIndex].price;
+
+      cartData.items[itemIndex].subtotal = newQuantity * priceToUse;
+
+      // Recalculate the total price
+      cartData.totalPrice = cartData.items.reduce(
+        (total, item) => total + item.subtotal,
+        0
+      );
+
+      // Update the cart document in Firebase
+      await updateDoc(cartDocRef, cartData);
+
+      console.log("Item quantity updated in Firebase:", cartData);
+      return { success: true, data: cartData };
+    } catch (error) {
+      console.error("Error updating item quantity:", error);
+      return { success: false, error };
     }
-
-    // Recalculate totals
-    const updatedCart = {
-      ...parsedCart,
-      items: updatedItems,
-      totalQuantity: updatedItems.reduce((sum, item) => sum + item.quantity, 0),
-      totalPrice: updatedItems.reduce((sum, item) => sum + item.subtotal, 0),
-    };
-
-    // Save updated cart to local storage
-    localStorage.setItem(CART_KEY, JSON.stringify(updatedCart));
-    console.log("Item deleted from cart:", updatedCart);
-    return updatedCart;
-  }, []);
-
-  // Return all cart functions
-  return { createCart, addItemToCart, getCart, deleteCartItem };
+  };
+  return {
+    createCart,
+    addItemToCart,
+    getCart,
+    deleteCartItem,
+    updateCartItemQuantity,
+  };
 }

@@ -7,7 +7,11 @@ import {
   ShoppingCartIcon,
 } from "@heroicons/react/24/outline";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth, useAuthenticationFunctions } from "@/utils/firebase";
+import {
+  auth,
+  useAuthenticationFunctions,
+  useCartFunctions,
+} from "@/utils/firebase";
 import { useNavigate } from "react-router-dom";
 import {
   Dialog,
@@ -66,6 +70,31 @@ function Navbar() {
     }
   };
 
+  const { getCart } = useCartFunctions(); // Import getCart from useCartFunctions
+
+  const [cart, setCart] = useState(null); // Initialize cart to null
+
+  useEffect(() => {
+    handleFetchCart();
+  }, []);
+
+  const handleFetchCart = async () => {
+    try {
+      const getCartResponse = await getCart();
+      console.log("getCartResponse from navbar >> ", getCartResponse);
+      if (getCartResponse?.success) {
+        setCart(getCartResponse.data); // Store the entire cart data
+      } else {
+        console.log(
+          "decide on what to do if cart response has a success value of false"
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+      alert("An error occurred while fetching the cart. Please try again.");
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setIsAuthenticated(!!currentUser);
@@ -104,8 +133,15 @@ function Navbar() {
 
             <div className="flex items-center space-x-4">
               {/* Shopping Cart Icon */}
+
               <button className="relative text-black hover:text-flame-500">
                 <ShoppingCartIcon className="w-6 h-6" />
+                {/* Cart Item Count Badge */}
+                {cart?.items?.length > 0 && (
+                  <span className="absolute top-0 right-0 text-xs font-bold text-white bg-red-500 rounded-full w-5 h-5 flex items-center justify-center">
+                    {cart.items.length}
+                  </span>
+                )}
               </button>
 
               {/* Profile/Login Button */}

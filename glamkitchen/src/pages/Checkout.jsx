@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import FloatingOrderSummary from "@/components/FloatingOrderSummary";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import CheckoutForm from "@/components/forms/CheckoutForm";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useOrdersFunctions } from "@/utils/firebase";
@@ -23,27 +23,50 @@ function Checkout() {
   const {
     register,
     handleSubmit,
-    watch,
+    reset,
     formState: { errors },
   } = useForm();
   const { addOrder } = useOrdersFunctions();
   const [paymentMethod, setPaymentMethod] = useState("Pay on Delivery");
-  const [cart, setCart] = useState();
+
+  const navigate = useNavigate();
+
+  const { getCart } = useCartFunctions(); // Import getCart from useCartFunctions
+
+  const [cart, setCart] = useState(null); // Initialize cart to null
 
   useEffect(() => {
-    handleFetchOrder();
+    handleFetchCart();
   }, []);
-  const CART_KEY = "cart";
-  const handleFetchOrder = () => {
-    let cart = localStorage.getItem(CART_KEY);
-    if (cart) {
-      cart = JSON.parse(cart); // Parse the cart string into an object
-      console.log("Cart to post >>", cart); // Log the cart as an object
-      setCart(cart);
-    } else {
-      console.log("Cart is empty or not found.");
+
+  const handleFetchCart = async () => {
+    try {
+      const getCartResponse = await getCart();
+      console.log("getCartResponse >> ", getCartResponse);
+      if (getCartResponse?.success) {
+        setCart(getCartResponse.data); // Store the entire cart data
+      } else {
+        console.log(
+          "decide on what to do if cart response has a success value of false"
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+      alert("An error occurred while fetching the cart. Please try again.");
     }
   };
+  const currentDate = new Date();
+  const options = {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    timeZoneName: "short",
+  };
+
+  const formattedDate = currentDate.toLocaleString("en-US", options);
 
   const onSubmit = async (data) => {
     // Determine if a user exists (e.g., via Firebase Auth or Context)
@@ -76,8 +99,8 @@ function Checkout() {
 
     // Prepare the final order object
     const finalOrder = {
-      orderDate: new Date().toISOString(), // Current date in ISO format
-      status: "Pending", // Default status for the order
+      orderDate: formattedDate, // Current date in ISO format
+      status: "pending", // Default status for the order
       type: "GENERAL", // Order type
       paymentInfo, // Include the nested paymentInfo object
       location: data.location, // Delivery location
@@ -95,6 +118,9 @@ function Checkout() {
 
       if (response.success) {
         console.log("Order added successfully:", response.message);
+        reset();
+        localStorage.clear();
+        navigate("/home/checkout");
         // Handle success, such as navigating to a thank-you page
       } else {
         console.error("Failed to add order:", response.message);

@@ -2,32 +2,56 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { User, Phone, MapPin } from "lucide-react";
-import { useOrdersFunctions } from "@/utils/firebase";
+import { useOrdersFunctions, useCartFunctions } from "@/utils/firebase";
+import { useNavigate } from "react-router-dom";
 
-const ExpressOrderForm = ({ CART_KEY }) => {
+const ExpressOrderForm = ({ cartId }) => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm();
   const { addOrder } = useOrdersFunctions();
+  const { getCart } = useCartFunctions(); // Import getCart from useCartFunctions
 
-  const [cart, setCart] = useState();
+  const [cart, setCart] = useState(null); // Initialize cart to null
 
   useEffect(() => {
-    handleFetchOrder();
+    handleFetchCart();
   }, []);
 
-  const handleFetchOrder = () => {
-    let cart = localStorage.getItem(CART_KEY);
-    if (cart) {
-      cart = JSON.parse(cart); // Parse the cart string into an object
-      console.log("Cart to post >>", cart); // Log the cart as an object
-      setCart(cart);
-    } else {
-      console.log("Cart is empty or not found.");
+  const navigate = useNavigate();
+
+  const handleFetchCart = async () => {
+    try {
+      const getCartResponse = await getCart();
+      console.log("getCartResponse >> ", getCartResponse);
+      if (getCartResponse?.success) {
+        setCart(getCartResponse.data); // Store the entire cart data
+      } else {
+        console.log(
+          "decide on what to do if cart response has a success value of false"
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+      alert("An error occurred while fetching the cart. Please try again.");
     }
   };
+
+  const currentDate = new Date();
+  const options = {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    timeZoneName: "short",
+  };
+
+  const formattedDate = currentDate.toLocaleString("en-US", options);
 
   // Form submission handler
   const onSubmit = async (data) => {
@@ -48,12 +72,18 @@ const ExpressOrderForm = ({ CART_KEY }) => {
 
     // Prepare the final order object
     const finalOrder = {
+      orderDate: formattedDate,
       location: data.location, // Location from the form
       subscribe: data.subscribe || false, // Subscription preference
       discountCode: data.discountCode || null, // Optional discount code
       cart: cart || [], // Cart items
       customer, // Add dynamically constructed customer object
-      paymentMethod: "pay on delivery",
+      paymentInfo: {
+        method: "Pay on Delivery",
+        mpesaCode: null, // No Mpesa code for Pay on Delivery
+      },
+      status: "pending",
+      type: "EXPRESS",
     };
 
     console.log("Submitting Order:", finalOrder);
@@ -64,7 +94,12 @@ const ExpressOrderForm = ({ CART_KEY }) => {
 
       if (response.success) {
         console.log("Order added successfully:", response.message);
+        const newOrderId = response.orderId;
+        reset();
+        alert("Your order as been recived successfully");
         // Handle success, such as navigating to a thank-you page
+        localStorage.clear();
+        navigate(`/home/order-confirmation/${newOrderId}`);
       } else {
         console.error("Failed to add order:", response.message);
         // Optionally show an error notification

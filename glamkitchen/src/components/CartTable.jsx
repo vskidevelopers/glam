@@ -9,20 +9,64 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useCartFunctions } from "@/utils/firebase"; // Import the hook
 
-const CartTable = ({ cart }) => {
+const CartTable = ({ cart, fetchCart }) => {
   console.log("cart from cart table >> ", cart);
+  const { updateCartItemQuantity, deleteCartItem } = useCartFunctions(); // Get the functions
 
-  const handleIncrease = (productId) => {
-    // Add increase functionality here
+  const handleIncrease = async (productId) => {
+    try {
+      const newQuantity =
+        cart.find((item) => item.productId === productId).quantity + 1;
+      const updateResult = await updateCartItemQuantity(productId, newQuantity);
+      if (updateResult.success) {
+        fetchCart(); // Refresh the cart after updating
+      } else {
+        console.error("Error updating item quantity:", updateResult.error);
+        // Handle error, e.g., display an error message
+      }
+    } catch (error) {
+      console.error("Error updating item quantity:", error);
+      // Handle error, e.g., display an error message
+    }
   };
 
-  const handleDecrease = (productId) => {
-    // Add decrease functionality here
+  const handleDecrease = async (productId) => {
+    try {
+      const currentItem = cart.find((item) => item.productId === productId);
+      if (currentItem.quantity > 1) {
+        const newQuantity = currentItem.quantity - 1;
+        const updateResult = await updateCartItemQuantity(
+          productId,
+          newQuantity
+        );
+        if (updateResult.success) {
+          fetchCart(); // Refresh the cart after updating
+        } else {
+          console.error("Error updating item quantity:", updateResult.error);
+          // Handle error, e.g., display an error message
+        }
+      }
+    } catch (error) {
+      console.error("Error updating item quantity:", error);
+      // Handle error, e.g., display an error message
+    }
   };
 
-  const handleDelete = (productId) => {
-    // Add delete functionality here
+  const handleDelete = async (productId) => {
+    try {
+      const deleteResult = await deleteCartItem(productId);
+      if (deleteResult.success) {
+        fetchCart(); // Refresh the cart after deleting
+      } else {
+        console.error("Error deleting item from cart:", deleteResult.error);
+        // Handle error, e.g., display an error message
+      }
+    } catch (error) {
+      console.error("Error deleting item from cart:", error);
+      // Handle error, e.g., display an error message
+    }
   };
 
   return (
@@ -49,7 +93,13 @@ const CartTable = ({ cart }) => {
               />
             </TableCell>
             <TableCell className="font-medium">{item.productName}</TableCell>
-            <TableCell>${item.price.toFixed(2)}</TableCell>
+            <TableCell>
+              $
+              {(item.discountPrice
+                ? parseFloat(item.discountPrice)
+                : item.price
+              ).toFixed(2)}
+            </TableCell>
             <TableCell>
               <div className="flex items-center gap-2">
                 <button
@@ -67,7 +117,14 @@ const CartTable = ({ cart }) => {
                 </button>
               </div>
             </TableCell>
-            <TableCell>${(item.price * item.quantity).toFixed(2)}</TableCell>
+            <TableCell>
+              $
+              {(
+                (item.discountPrice
+                  ? parseFloat(item.discountPrice)
+                  : item.price) * item.quantity
+              ).toFixed(2)}
+            </TableCell>
             <TableCell className="text-right">
               <button
                 onClick={() => handleDelete(item.productId)}

@@ -7,51 +7,39 @@ import { Link } from "react-router-dom";
 
 function Cart() {
   const { getCart } = useCartFunctions();
-  const [cart, setCart] = useState();
-  const [cartItems, setCartItems] = useState(() => {
-    const CART_KEY = "cart";
-    const storedCart = JSON.parse(localStorage.getItem(CART_KEY));
-    return storedCart ? storedCart.items : [];
-  });
-  const CART_KEY = "cart";
-  const handleRemoveItem = (productId) => {
-    const updatedCartItems = cartItems.filter(
-      (item) => item.productId !== productId
-    );
+  const [cart, setCart] = useState(null); // Initialize cart to null
 
-    setCartItems(updatedCartItems);
+  // No need for local storage anymore, as we'll use Firebase
+  // const CART_KEY = "cart";
+  // const storedCart = JSON.parse(localStorage.getItem(CART_KEY));
+  // const [cartItems, setCartItems] = useState(() => storedCart ? storedCart.items : []);
 
-    // Update local storage
-    const storedCart = JSON.parse(localStorage.getItem(CART_KEY));
-    if (storedCart) {
-      const updatedCart = {
-        ...storedCart,
-        items: updatedCartItems,
-        totalQuantity: updatedCartItems.reduce(
-          (acc, item) => acc + item.quantity,
-          0
-        ),
-        totalPrice: updatedCartItems.reduce(
-          (acc, item) => acc + item.subtotal,
-          0
-        ),
-      };
-      localStorage.setItem(CART_KEY, JSON.stringify(updatedCart));
-    }
-  };
+  const [cartItems, setCartItems] = useState([]); // Initialize cartItems to an empty array
   const [subTotal, setSubTotal] = useState(0);
 
   const handleFetchCart = async () => {
     const getCartResponse = await getCart();
     console.log("getCartResponse >> ", getCartResponse);
-    setCartItems(getCartResponse?.items);
-    setCart(getCartResponse);
-    setSubTotal(getCartResponse?.totalPrice);
+    if (getCartResponse?.success) {
+      setCartItems(getCartResponse.data.items);
+      setCart(getCartResponse.data); // Store the entire cart data
+      setSubTotal(getCartResponse.data.totalPrice);
+    } else {
+      console.log(
+        "decide on what to do if cart response has a success value of false"
+      );
+    }
   };
 
   useEffect(() => {
     handleFetchCart();
   }, []);
+
+  // Remove the handleRemoveItem function, as it's now handled by Firebase
+  // const handleRemoveItem = (productId) => {
+  //   // ... (previous logic)
+  // };
+
   return (
     <div>
       <HeroSection
@@ -66,10 +54,12 @@ function Cart() {
           <>
             <div className="col-span-2">
               <h2 className="font-bold text-2xl md:text-5xl">Your Cart</h2>
-              <CartTable cart={cartItems} />
+              <CartTable cart={cartItems} fetchCart={handleFetchCart} />{" "}
+              {/* Pass cartItems to CartTable */}
             </div>
             <div>
-              <OrderSummary subtotal={subTotal} cart={cart} />
+              <OrderSummary subtotal={subTotal} cart={cart} />{" "}
+              {/* Pass cart to OrderSummary */}
             </div>
           </>
         ) : (

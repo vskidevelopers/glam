@@ -1,42 +1,66 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button"; // Adjust import path if needed
 import FloatingOrderSummary from "@/components/FloatingOrderSummary"; // Import the order summary component
+import { useOrdersFunctions } from "@/utils/firebase"; // Import order functions
 
 function OrderConfirmation() {
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const cart = {
-    orderId: "GYK12345",
-    orderDate: "2024-11-14",
-    items: [
-      { name: "Non-stick Pan", quantity: 2, price: 25.99 },
-      { name: "Knife Set", quantity: 1, price: 45.0 },
-    ],
-    subtotal: 96.98,
-    shipping: 10.0,
-    tax: 5.0,
-    total: 111.98,
-    shippingInfo: {
-      name: "John Doe",
-      address: "123 Kitchen Lane",
-      city: "Flavor Town",
-      state: "CA",
-      zip: "90210",
-    },
-    billingInfo: {
-      sameAsShipping: true,
-    },
-    customerInfo: {
-      name: "John Doe",
-      email: "johndoe@example.com",
-      phone: "555-1234",
-    },
-    paymentInfo: {
-      cardType: "Visa",
-      lastFour: "1234",
-    },
-    lastUpdated: "2024-11-14T10:00:00",
+  const { orderId } = useParams(); // Get the order ID from the URL
+  const { fetchOrderById } = useOrdersFunctions(); // Import the fetchOrderById function
+
+  useEffect(() => {
+    handleFetchOrder();
+  }, [orderId]);
+
+  const handleFetchOrder = async () => {
+    setLoading(true);
+    try {
+      const fetchResult = await fetchOrderById(orderId); // Fetch order by ID
+      if (fetchResult.success) {
+        console.log("fetch results >> ", fetchResult);
+
+        setOrder(fetchResult?.data);
+        setLoading(false);
+      } else {
+        console.error("Error fetching order:", fetchResult);
+        alert("An error occurred while fetching your order. Please try again.");
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Error fetching order:", error);
+      alert("An error occurred while fetching your order. Please try again.");
+      setLoading(false);
+    }
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!order) {
+    return (
+      <div className="flex justify-center items-center h-full bg-gray-100 pt-20 mb-16">
+        <div className="max-w-2xl w-full p-8 bg-white rounded-lg shadow-lg ">
+          <h1 className="text-3xl font-semibold text-teal-600 mb-4 text-center">
+            Order Not Found
+          </h1>
+          <p className="text-gray-700 mb-4 text-center">
+            The order you are trying to access could not be found. Please check
+            your order ID and try again.
+          </p>
+          <Button
+            className="bg-teal-600 hover:bg-teal-700 text-white"
+            onClick={() => navigate("/")}
+          >
+            Back to Home
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex justify-center items-center h-full bg-gray-100 pt-20 mb-16">
@@ -60,7 +84,8 @@ function OrderConfirmation() {
 
         {/* Order Summary Section */}
         <div className="mb-6">
-          <FloatingOrderSummary cart={cart} />
+          <FloatingOrderSummary orderId={order?.id} cart={order?.cart} />{" "}
+          {/* Pass the order's cart */}
         </div>
 
         {/* Footer Buttons */}
@@ -73,7 +98,7 @@ function OrderConfirmation() {
           </Button>
           <Button
             className="bg-blue-600 hover:bg-blue-700 text-white"
-            onClick={() => navigate("/order-tracking")}
+            onClick={() => navigate("/home/order-tracking")}
           >
             Track Your Order
           </Button>

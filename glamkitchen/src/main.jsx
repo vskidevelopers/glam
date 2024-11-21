@@ -31,7 +31,7 @@ import ShopUi from "./layouts/ShopUi";
 import Login from "./auth/Login";
 import AdminCategories from "./pages/admin/AdminCategories";
 import TrackOrder from "./pages/TrackOrder";
-import Categories from "./components/Categories";
+import Categories from "./pages/Categories";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -59,7 +59,10 @@ const router = createBrowserRouter(
         <Route path="checkout" element={<Checkout />} />
 
         {/* Order Confirmation Page */}
-        <Route path="order-confirmation" element={<OrderConfirmation />} />
+        <Route
+          path="order-confirmation/:orderId"
+          element={<OrderConfirmation />}
+        />
         <Route path="order-tracking" element={<TrackOrder />} />
 
         {/* User Dashboard */}

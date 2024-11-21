@@ -70,66 +70,13 @@ function Categories() {
   ];
 
   return (
-    <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
-      <div className="grid auto-rows-max items-start gap-4 md:gap-8 lg:col-span-3">
-        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ">
-          <Dialog>
-            <Card
-              className="flex items-center justify-center h-full"
-              x-chunk="dashboard-05-chunk-0"
-            >
-              <div className="w-full flex flex-col gap-4">
-                <CardHeader className="pb-3">
-                  <CardTitle>Product Category Management</CardTitle>
-                  <CardDescription className="max-w-lg text-balance leading-relaxed">
-                    Manage your product categories effectively. Update product
-                    classifications, enhance your online store, and ensure your
-                    offerings attract the right customers. Streamline your
-                    product management with easy access to all category
-                    settings.
-                  </CardDescription>
-                </CardHeader>
-                <CardFooter className="mt-auto">
-                  {/* Dialog trigger button to add category */}
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button>Add Category</Button>
-                    </DialogTrigger>
-
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-8 gap-1 ml-5"
-                      onClick={fetchAllCategoriesInStore}
-                    >
-                      <RefreshCcwDot className="h-3.5 w-3.5" />
-                      <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                        Refresh
-                      </span>
-                    </Button>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle className="text-center py-9">
-                          Add New Category
-                        </DialogTitle>
-                      </DialogHeader>
-                      {/* Here you can add your form for category creation */}
-                      <CategoryForm />
-                    </DialogContent>
-                  </Dialog>
-                </CardFooter>
-              </div>
-            </Card>
-          </Dialog>
-        </div>
-      </div>
-
+    <main className="grid pt-20 flex-1 items-start gap-4 p-4 sm:px-6 sm:pt-24 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
       <div className="grid auto-rows-max items-start gap-4 md:gap-8 sm:col-span-3 ">
         <div className="text-center mb-10 relative">
           <h2 className="text-4xl font-extrabold text-gray-900">
             <span className="relative inline-block">
               <span className="absolute inset-0 bg-flame-800 h-2/3 w-full -skew-y-2"></span>
-              <span className="relative"> Your Categories</span>
+              <span className="relative"> Our Categories</span>
             </span>
           </h2>
         </div>
