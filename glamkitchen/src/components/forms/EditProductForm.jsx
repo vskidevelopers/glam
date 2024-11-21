@@ -5,9 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
-  FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
@@ -21,15 +19,15 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { TagsInput } from "@/components/ui/tags-input";
-import { CloudUpload, Paperclip } from "lucide-react";
-import {
-  FileUploader,
-  FileUploaderContent,
-  FileUploaderItem,
-} from "@/components/ui/file-upload";
 import { useProductFunctions } from "@/utils/firebase";
 
 function EditProductForm({ product }) {
+  if (!product) {
+    return <div>Loading...</div>; // Show loading or placeholder if product is not available
+  }
+
+  console.log("product from edit product form >> ", product);
+
   const { updateProduct } = useProductFunctions();
 
   const {
@@ -40,17 +38,22 @@ function EditProductForm({ product }) {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      tags: product?.tags || [],
+      tags: product?.productTags || [], // Fallback to empty array if productTags is undefined
+      description: product?.productDescription || "",
+      status: product?.stockStatus || "Available", // Default to "Available" if stockStatus is undefined
+      price: product?.price || "", // Default to empty if price is not provided
+      name: product?.productName || "", // Default to empty if productName is not provided
     },
   });
 
   useEffect(() => {
-    // Set initial values based on product data
-    setValue("description", product.description);
-    setValue("status", product.status);
-    setValue("price", product.price);
-    setValue("tags", product.tags);
-    setValue("name", product.name);
+    if (product) {
+      setValue("description", product.productDescription);
+      setValue("status", product.stockStatus);
+      setValue("price", product.price);
+      setValue("tags", product.productTags);
+      setValue("name", product.productName);
+    }
   }, [product, setValue]);
 
   const onSubmit = async (updatedData) => {
@@ -75,11 +78,11 @@ function EditProductForm({ product }) {
           <FormControl>
             <Input
               type="text"
-              placeholder="e.g., Matrix Stainless Hotpots"
+              placeholder="e.g., Signature Stainless Steel Insulated Hotpots"
               {...register("name", { required: "Product name is required" })}
             />
           </FormControl>
-          <FormMessage>{errors.name?.message}</FormMessage>
+          <FormMessage>{errors?.productName?.message}</FormMessage>
         </FormField>
 
         {/* Product Description */}

@@ -345,8 +345,28 @@ export const useProductFunctions = () => {
       };
     }
   };
+  const deleteProduct = async (id) => {
+    try {
+      const productDocRef = doc(db, "Products", id);
+      await deleteDoc(productDocRef);
+      return {
+        collection: "products",
+        success: true,
+        data: null,
+        message: `product_deleted_successfully`,
+      };
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      return {
+        collection: "products",
+        success: false,
+        data: null,
+        message: `product_deletion_failed ${error}`,
+      };
+    }
+  };
 
-  return { addProduct, fetchAllProducts, fetchProductDetail };
+  return { addProduct, fetchAllProducts, fetchProductDetail, deleteProduct };
 };
 
 // ///////////////////////////////
@@ -694,6 +714,7 @@ export const useOrdersFunctions = () => {
     fetchOrderById,
   };
 };
+
 export const useNewslettersFunctions = () => {
   const addNewsletter = async (data) => {
     const newslettersCollectionRef = collection(db, "Newsletters");
@@ -962,9 +983,7 @@ export function useCartFunctions() {
       const cartData = cartSnapshot.data();
 
       // Find the index of the item to delete
-      const itemIndex = cartData.items.findIndex(
-        (item) => item.productId === itemId
-      );
+      const itemIndex = cartData?.items.findIndex((item) => item.id === itemId);
 
       if (itemIndex === -1) {
         return { success: false, message: "Item not found in cart" };

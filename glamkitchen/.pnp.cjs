@@ -44,6 +44,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@radix-ui/react-tooltip", "virtual:56b41f798394194aa320b22ee370d7ae3993f73ac538de281c607307ef0f2677799966c511bb06151e5e5b0735a66b121726497e53179da624e6fb7c9ff9b655#npm:1.1.3"],\
             ["@types/react", "npm:18.3.11"],\
             ["@types/react-dom", "npm:18.3.1"],\
+            ["@vis.gl/react-google-maps", "virtual:56b41f798394194aa320b22ee370d7ae3993f73ac538de281c607307ef0f2677799966c511bb06151e5e5b0735a66b121726497e53179da624e6fb7c9ff9b655#npm:1.4.0"],\
             ["@vitejs/plugin-react", "virtual:56b41f798394194aa320b22ee370d7ae3993f73ac538de281c607307ef0f2677799966c511bb06151e5e5b0735a66b121726497e53179da624e6fb7c9ff9b655#npm:4.3.3"],\
             ["autoprefixer", "virtual:56b41f798394194aa320b22ee370d7ae3993f73ac538de281c607307ef0f2677799966c511bb06151e5e5b0735a66b121726497e53179da624e6fb7c9ff9b655#npm:10.4.20"],\
             ["class-variance-authority", "npm:0.7.0"],\
@@ -3598,6 +3599,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
+      ["@types/google.maps", [\
+        ["npm:3.58.1", {\
+          "packageLocation": "./.yarn/cache/@types-google.maps-npm-3.58.1-df719add21-7ad5bd9566.zip/node_modules/@types/google.maps/",\
+          "packageDependencies": [\
+            ["@types/google.maps", "npm:3.58.1"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
       ["@types/json-schema", [\
         ["npm:7.0.15", {\
           "packageLocation": "./.yarn/cache/@types-json-schema-npm-7.0.15-fd16381786-97ed0cb44d.zip/node_modules/@types/json-schema/",\
@@ -3643,6 +3653,34 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["@types/react-dom", "npm:18.3.1"],\
             ["@types/react", "npm:18.3.11"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@vis.gl/react-google-maps", [\
+        ["npm:1.4.0", {\
+          "packageLocation": "./.yarn/cache/@vis.gl-react-google-maps-npm-1.4.0-b318da2002-0f20c7cdd2.zip/node_modules/@vis.gl/react-google-maps/",\
+          "packageDependencies": [\
+            ["@vis.gl/react-google-maps", "npm:1.4.0"]\
+          ],\
+          "linkType": "SOFT"\
+        }],\
+        ["virtual:56b41f798394194aa320b22ee370d7ae3993f73ac538de281c607307ef0f2677799966c511bb06151e5e5b0735a66b121726497e53179da624e6fb7c9ff9b655#npm:1.4.0", {\
+          "packageLocation": "./.yarn/__virtual__/@vis.gl-react-google-maps-virtual-45c2e40e5d/0/cache/@vis.gl-react-google-maps-npm-1.4.0-b318da2002-0f20c7cdd2.zip/node_modules/@vis.gl/react-google-maps/",\
+          "packageDependencies": [\
+            ["@vis.gl/react-google-maps", "virtual:56b41f798394194aa320b22ee370d7ae3993f73ac538de281c607307ef0f2677799966c511bb06151e5e5b0735a66b121726497e53179da624e6fb7c9ff9b655#npm:1.4.0"],\
+            ["@types/google.maps", "npm:3.58.1"],\
+            ["@types/react", "npm:18.3.11"],\
+            ["@types/react-dom", "npm:18.3.1"],\
+            ["fast-deep-equal", "npm:3.1.3"],\
+            ["react", "npm:18.3.1"],\
+            ["react-dom", "virtual:56b41f798394194aa320b22ee370d7ae3993f73ac538de281c607307ef0f2677799966c511bb06151e5e5b0735a66b121726497e53179da624e6fb7c9ff9b655#npm:18.3.1"]\
+          ],\
+          "packagePeers": [\
+            "@types/react-dom",\
+            "@types/react",\
+            "react-dom",\
+            "react"\
           ],\
           "linkType": "HARD"\
         }]\
@@ -5335,6 +5373,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@radix-ui/react-tooltip", "virtual:56b41f798394194aa320b22ee370d7ae3993f73ac538de281c607307ef0f2677799966c511bb06151e5e5b0735a66b121726497e53179da624e6fb7c9ff9b655#npm:1.1.3"],\
             ["@types/react", "npm:18.3.11"],\
             ["@types/react-dom", "npm:18.3.1"],\
+            ["@vis.gl/react-google-maps", "virtual:56b41f798394194aa320b22ee370d7ae3993f73ac538de281c607307ef0f2677799966c511bb06151e5e5b0735a66b121726497e53179da624e6fb7c9ff9b655#npm:1.4.0"],\
             ["@vitejs/plugin-react", "virtual:56b41f798394194aa320b22ee370d7ae3993f73ac538de281c607307ef0f2677799966c511bb06151e5e5b0735a66b121726497e53179da624e6fb7c9ff9b655#npm:4.3.3"],\
             ["autoprefixer", "virtual:56b41f798394194aa320b22ee370d7ae3993f73ac538de281c607307ef0f2677799966c511bb06151e5e5b0735a66b121726497e53179da624e6fb7c9ff9b655#npm:10.4.20"],\
             ["class-variance-authority", "npm:0.7.0"],\

@@ -138,7 +138,7 @@ function Navbar() {
                 <ShoppingCartIcon className="w-6 h-6" />
                 {/* Cart Item Count Badge */}
                 {cart?.items?.length > 0 && (
-                  <span className="absolute top-0 right-0 text-xs font-bold text-white bg-red-500 rounded-full w-5 h-5 flex items-center justify-center">
+                  <span className="absolute top-0 right-0 text-xs font-bold text-white bg-red-500 rounded-full w-4 h-4 flex items-center justify-center -mr-1 -mt-1">
                     {cart.items.length}
                   </span>
                 )}

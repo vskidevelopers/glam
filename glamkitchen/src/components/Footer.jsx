@@ -2,6 +2,20 @@ import { User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Button } from "./ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  APIProvider,
+  Map,
+  AdvancedMarker,
+  Pin,
+} from "@vis.gl/react-google-maps";
 
 const Footer = () => {
   const {
@@ -59,85 +73,125 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* right div */}
+          {/* Right Div */}
+          <div className="flex items-center col-span-1 md:col-span-3 lg:col-span-3 mb-4 md:mb-0 grid grid-col-1 md:grid-cols-3">
+            <Dialog>
+              <div className="mb-3 mb-md-0">
+                <h6 className="text-2xl uppercase mb-3">Customer Services</h6>
+                <ul className="list-unstyled mb-0">
+                  <li>
+                    <a className="footer-link" href="#">
+                      Help & Contact Us
+                    </a>
+                  </li>
+                  <li>
+                    <a className="footer-link" href="#">
+                      Returns & Refunds
+                    </a>
+                  </li>
+                  <li>
+                    <DialogTrigger>
+                      <a className="footer-link" href="#">
+                        Store Locator
+                      </a>
+                    </DialogTrigger>
+                  </li>
+                  <li>
+                    <a className="footer-link" href="#">
+                      Terms & Conditions
+                    </a>
+                  </li>
+                </ul>
+              </div>
 
-          <div className="flex items-center col-span-1 md:col-span-3 lg:col-span-3 mb-4 md:mb-0 grid grid-col-1 md:grid-cols-3 ">
-            <div className="mb-3 mb-md-0">
-              <h6 className="text-2xl uppercase mb-3">Customer Services</h6>
-              <ul className="list-unstyled mb-0">
-                <li>
-                  <a className="footer-link" href="#">
-                    Help & Contact Us
-                  </a>
-                </li>
-                <li>
-                  <a className="footer-link" href="#">
-                    Returns & Refunds
-                  </a>
-                </li>
-                <li>
-                  <a className="footer-link" href="#">
-                    Store Locator
-                  </a>
-                </li>
-                <li>
-                  <a className="footer-link" href="#">
-                    Terms & Conditions
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div className="mb-3 mb-md-0">
-              <h6 className="text-2xl uppercase mb-3">Company</h6>
-              <ul className="list-unstyled mb-0">
-                <li>
-                  <a className="footer-link" href="#">
-                    About Us
-                  </a>
-                </li>
-                <li>
-                  <a className="footer-link" href="#">
-                    Our Products
-                  </a>
-                </li>
-                <li>
-                  <a className="footer-link" href="#">
-                    Latest News
-                  </a>
-                </li>
-                <li>
-                  <a className="footer-link" href="#">
-                    FAQs
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h6 className="text-2xl uppercase mb-3">Social Media</h6>
-              <ul className="list-unstyled mb-0">
-                <li>
-                  <a className="footer-link" href="#">
-                    Twitter
-                  </a>
-                </li>
-                <li>
-                  <a className="footer-link" href="#">
-                    Instagram
-                  </a>
-                </li>
-                <li>
-                  <a className="footer-link" href="#">
-                    Facebook
-                  </a>
-                </li>
-                <li>
-                  <a className="footer-link" href="#">
-                    Pinterest
-                  </a>
-                </li>
-              </ul>
-            </div>
+              <div className="mb-3 mb-md-0">
+                <h6 className="text-2xl uppercase mb-3">Company</h6>
+                <ul className="list-unstyled mb-0">
+                  <li>
+                    <a className="footer-link" href="#">
+                      About Us
+                    </a>
+                  </li>
+                  <li>
+                    <a className="footer-link" href="#">
+                      Our Products
+                    </a>
+                  </li>
+                  <li>
+                    <a className="footer-link" href="#">
+                      Latest News
+                    </a>
+                  </li>
+                  <li>
+                    <a className="footer-link" href="#">
+                      FAQs
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <h6 className="text-2xl uppercase mb-3">Social Media</h6>
+                <ul className="list-unstyled mb-0">
+                  <li>
+                    <a className="footer-link" href="#">
+                      Twitter
+                    </a>
+                  </li>
+                  <li>
+                    <a className="footer-link" href="#">
+                      Instagram
+                    </a>
+                  </li>
+                  <li>
+                    <a className="footer-link" href="#">
+                      Facebook
+                    </a>
+                  </li>
+                  <li>
+                    <a className="footer-link" href="#">
+                      Pinterest
+                    </a>
+                  </li>
+                </ul>
+              </div>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Maps</DialogTitle>
+                </DialogHeader>
+                <APIProvider
+                  apiKey="AIzaSyBYRchWa09UlAUZsewokxw9tGzbrcp8zyg"
+                  onLoad={() => console.log("Maps API has loaded.")}
+                >
+                  <Map
+                    defaultZoom={13}
+                    defaultCenter={{ lat: -1.284838, lng: 36.833563 }}
+                    mapId="b00cfbb1f90973b0"
+                    onCameraChanged={(event) =>
+                      console.log(
+                        "camera changed:",
+                        event.detail.center,
+                        "zoom:",
+                        event.detail.zoom
+                      )
+                    }
+                  >
+                    <AdvancedMarker
+                      key={"glam-your-kitchen"}
+                      position={{
+                        lat: -1.2848386139954246,
+                        lng: 36.83356372616516,
+                      }}
+                    >
+                      <Pin
+                        background={"#FBBC04"}
+                        glyphColor={"#000"}
+                        borderColor={"#000"}
+                      />
+                    </AdvancedMarker>
+                  </Map>
+                </APIProvider>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
         <div className="border-t pt-4" style={{ borderColor: "#1d1d1d" }}>

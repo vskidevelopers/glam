@@ -2,6 +2,7 @@ import CategoriesSection from "@/sections/CategoriesSection";
 import Features from "@/sections/Features";
 import HomeSlidersSection from "@/sections/HomeSliderSection";
 import Introbanner from "@/sections/Introbanner";
+import MonthlyOfferSection from "@/sections/MonthlyOfferSection";
 import PromotionalSection from "@/sections/PromotionalSection";
 import React from "react";
 
@@ -12,7 +13,7 @@ function Home() {
       <CategoriesSection />
       <HomeSlidersSection title="Top Trending" />
       <PromotionalSection />
-      <HomeSlidersSection title="November Offers" />
+      <MonthlyOfferSection />
       <Features />
     </div>
   );

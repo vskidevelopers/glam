@@ -55,17 +55,30 @@ const CartTable = ({ cart, fetchCart }) => {
   };
 
   const handleDelete = async (productId) => {
-    try {
-      const deleteResult = await deleteCartItem(productId);
-      if (deleteResult.success) {
-        fetchCart(); // Refresh the cart after deleting
-      } else {
-        console.error("Error deleting item from cart:", deleteResult.error);
+    // Show confirmation dialog before proceeding
+    const isConfirmed = window.confirm(
+      "Are you sure you want to delete this item from your cart?"
+    );
+
+    // If the user confirms, proceed with deletion
+    if (isConfirmed) {
+      try {
+        const deleteResult = await deleteCartItem(productId);
+        console.log("deleteResult >> ", deleteResult);
+
+        if (deleteResult?.success) {
+          fetchCart(); // Refresh the cart after deleting
+        } else {
+          console.error("Error deleting item from cart:", deleteResult.error);
+          // Handle error, e.g., display an error message
+        }
+      } catch (error) {
+        console.error("Error deleting item from cart:", error);
         // Handle error, e.g., display an error message
       }
-    } catch (error) {
-      console.error("Error deleting item from cart:", error);
-      // Handle error, e.g., display an error message
+    } else {
+      // Optionally log or handle if the user cancels the deletion
+      console.log("Item deletion was cancelled.");
     }
   };
 

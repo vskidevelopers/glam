@@ -201,42 +201,24 @@ export default function ProductManagement() {
 
           {/* Actions */}
           <TableCell>
-            <Dialog>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button aria-haspopup="true" size="icon" variant="ghost">
-                    <MoreHorizontal className="h-4 w-4" />
-                    <span className="sr-only">Toggle menu</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuItem>
-                    <DialogTrigger asChild>
-                      <div className="flex">
-                        <Pencil className="text-sky-700 mr-1 w-5" />
-                        Edit
-                      </div>
-                    </DialogTrigger>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => handleDeleteProduct(product.id)}
-                  >
-                    <Trash2 className="text-red-700 mr-1 w-5" />
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle className="text-center py-9">
-                    Product Edit Form
-                  </DialogTitle>
-                  <DialogTitle>Product Name: {product.productName}</DialogTitle>
-                </DialogHeader>
-                <EditProductForm product={product} />
-              </DialogContent>
-            </Dialog>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button aria-haspopup="true" size="icon" variant="ghost">
+                  <MoreHorizontal className="h-4 w-4" />
+                  <span className="sr-only">Toggle menu</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+
+                <DropdownMenuItem
+                  onClick={() => handleDeleteProduct(product?.id)}
+                >
+                  <Trash2 className="text-red-700 mr-1 w-5" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </TableCell>
         </TableRow>
       ));
