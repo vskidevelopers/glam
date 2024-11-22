@@ -862,7 +862,7 @@ export function useCartFunctions() {
     console.log("add item initilized in firebase >>> ", item);
 
     try {
-      const cartId = localStorage.getItem("currentCartId"); // Get cart ID from local storage
+      let cartId = localStorage.getItem("currentCartId"); // Get cart ID from local storage
 
       if (!cartId) {
         console.log("no cart exists to add your item");

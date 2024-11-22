@@ -51,19 +51,6 @@ const SideBar = () => {
           <Tooltip>
             <TooltipTrigger asChild>
               <Link
-                to={`/admin/store/${storeId}`}
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-              >
-                <Users2 className="h-5 w-5" />
-                <span className="sr-only">Store Profile</span>
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent side="right">Store Profile</TooltipContent>
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link
                 to="/admin/products"
                 className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-accent-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
               >

@@ -158,48 +158,60 @@ const Footer = () => {
                 <DialogHeader>
                   <DialogTitle>Maps</DialogTitle>
                 </DialogHeader>
-                <APIProvider
-                  apiKey="AIzaSyBYRchWa09UlAUZsewokxw9tGzbrcp8zyg"
-                  onLoad={() => console.log("Maps API has loaded.")}
-                >
-                  <Map
-                    defaultZoom={13}
-                    defaultCenter={{ lat: -1.284838, lng: 36.833563 }}
-                    mapId="b00cfbb1f90973b0"
-                    onCameraChanged={(event) =>
-                      console.log(
-                        "camera changed:",
-                        event.detail.center,
-                        "zoom:",
-                        event.detail.zoom
-                      )
-                    }
+                <div className="relative w-full h-[60vh] min-h-[300px] rounded-lg overflow-hidden">
+                  <APIProvider
+                    apiKey="AIzaSyBYRchWa09UlAUZsewokxw9tGzbrcp8zyg"
+                    onLoad={() => console.log("Maps API has loaded.")}
                   >
-                    <AdvancedMarker
-                      key={"glam-your-kitchen"}
-                      position={{
-                        lat: -1.2848386139954246,
-                        lng: 36.83356372616516,
+                    <Map
+                      defaultZoom={13}
+                      defaultCenter={{ lat: -1.284838, lng: 36.833563 }}
+                      mapId="b00cfbb1f90973b0"
+                      onCameraChanged={(event) =>
+                        console.log(
+                          "camera changed:",
+                          event.detail.center,
+                          "zoom:",
+                          event.detail.zoom
+                        )
+                      }
+                      style={{
+                        width: "100%",
+                        height: "100%", // Full height within the container
                       }}
                     >
-                      <Pin
-                        background={"#FBBC04"}
-                        glyphColor={"#000"}
-                        borderColor={"#000"}
-                      />
-                    </AdvancedMarker>
-                  </Map>
-                </APIProvider>
+                      <AdvancedMarker
+                        key={"glam-your-kitchen"}
+                        position={{
+                          lat: -1.28489,
+                          lng: 36.8336,
+                        }}
+                      >
+                        <Pin
+                          background={"#FBBC04"}
+                          glyphColor={"#000"}
+                          borderColor={"#000"}
+                        />
+                      </AdvancedMarker>
+                    </Map>
+                  </APIProvider>
+                </div>
               </DialogContent>
             </Dialog>
           </div>
         </div>
         <div className="border-t pt-4" style={{ borderColor: "#1d1d1d" }}>
-          <div className="flex flex-col lg:flex-row justify-between">
-            <div>
-              <p className="small text-muted mb-0">
-                &copy; 2023 All rights reserved.
+          <div className="flex flex-col lg:flex-row justify-evenly items-center small text-robin_egg_blue">
+            <div className="flex ">
+              <p className=" mb-0">
+                &copy; {new Date().getFullYear()} All rights reserved.
               </p>
+              {/* Hidden Admin Link */}
+            </div>
+            <div className="flex justify-start">
+              <Link to="/admin" className="pl-6 text-center">
+                glam_your_kitchen
+              </Link>
             </div>
           </div>
         </div>

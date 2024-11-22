@@ -16,6 +16,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
   SheetContent,
@@ -25,7 +26,7 @@ import {
   SheetFooter,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import ProductCard from "@/components/ProductCard"; // Import ProductCard
+
 import "./styles/productDetails.css";
 
 function ProductDetails() {
@@ -298,70 +299,72 @@ function ProductDetails() {
         </div>
 
         <SheetContent>
-          <SheetHeader>
-            <SheetTitle>
-              Your Cart{" "}
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 gap-1"
-                onClick={handleFetchCart}
-              >
-                <RefreshCcwDot
-                  className={`h-3.5 w-3.5 ${
-                    fetchLoading ? "animate-spin" : ""
-                  }`}
-                />
-                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                  Refresh
-                </span>
-              </Button>
-            </SheetTitle>
-            <SheetDescription>
-              Review your selected items and proceed to checkout.
-            </SheetDescription>
-          </SheetHeader>
-
-          <div className="py-4">
-            {cartItems?.map((item) => (
-              <CartItem
-                key={item.productId}
-                item={item}
-                onQuantityChange={handleQuantityChange}
-                onRemove={handleRemoveItem}
-                fetchCart={handleFetchCart}
-              />
-            ))}
-          </div>
-
-          <SheetFooter>
-            <div className="absolute bottom-5 flex flex-col items-end mt-6 border-t pt-4 ">
-              <div className="flex justify-between w-full mb-4 px-2">
-                <p className="text-lg font-semibold">Subtotal:</p>
-                <p className="text-lg font-bold">Ksh {subTotal}</p>
-              </div>
-              <div className="flex flex-col gap-4 w-full space-x-4">
-                <Dialog>
-                  <DialogTrigger
-                    onClick={handleExpressOrder}
-                    className="bg-flame text-white px-6 py-2 rounded-full hover:bg-blue-600"
-                  >
-                    Order Now
-                  </DialogTrigger>
-                  <DialogContent className="w-[650px] max-w-4xl">
-                    <ExpressOrderForm cartId={cartId} />
-                  </DialogContent>
-                </Dialog>
-
-                <Link
-                  to={`/home/checkout?cartId=${cartId}`} // Pass cartId to checkout
-                  className="bg-green-500 text-white px-6 py-2 rounded-full hover:bg-green-600"
+          <ScrollArea className="h-[90%]">
+            <SheetHeader>
+              <SheetTitle>
+                Your Cart{" "}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 gap-1"
+                  onClick={handleFetchCart}
                 >
-                  Continue to Checkout
-                </Link>
-              </div>
+                  <RefreshCcwDot
+                    className={`h-3.5 w-3.5 ${
+                      fetchLoading ? "animate-spin" : ""
+                    }`}
+                  />
+                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                    Refresh
+                  </span>
+                </Button>
+              </SheetTitle>
+              <SheetDescription>
+                Review your selected items and proceed to checkout.
+              </SheetDescription>
+            </SheetHeader>
+
+            <div className="py-4">
+              {cartItems?.map((item) => (
+                <CartItem
+                  key={item.productId}
+                  item={item}
+                  onQuantityChange={handleQuantityChange}
+                  onRemove={handleRemoveItem}
+                  fetchCart={handleFetchCart}
+                />
+              ))}
             </div>
-          </SheetFooter>
+
+            <SheetFooter>
+              <div className="absolute bottom-5 flex flex-col items-end mt-6 border-t pt-4 ">
+                <div className="flex justify-between w-full mb-4 px-2">
+                  <p className="text-lg font-semibold">Subtotal:</p>
+                  <p className="text-lg font-bold">Ksh {subTotal}</p>
+                </div>
+                <div className="flex flex-col gap-4 w-full space-x-4">
+                  <Dialog>
+                    <DialogTrigger
+                      onClick={handleExpressOrder}
+                      className="bg-flame text-white px-6 py-2 rounded-full hover:bg-blue-600"
+                    >
+                      Order Now
+                    </DialogTrigger>
+                    <DialogContent className="w-[650px] max-w-4xl">
+                      <ExpressOrderForm cartId={cartId} />
+                    </DialogContent>
+                  </Dialog>
+
+                  <Link
+                    to={`/home/checkout?cartId=${cartId}`} // Pass cartId to checkout
+                    className="bg-green-500 text-white px-6 py-2 rounded-full hover:bg-green-600"
+                  >
+                    Continue to Checkout
+                  </Link>
+                </div>
+              </div>
+            </SheetFooter>
+          </ScrollArea>
         </SheetContent>
       </Sheet>
     </div>

@@ -32,6 +32,7 @@ import Login from "./auth/Login";
 import AdminCategories from "./pages/admin/AdminCategories";
 import TrackOrder from "./pages/TrackOrder";
 import Categories from "./pages/Categories";
+import Explore from "./pages/Explore";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -54,6 +55,9 @@ const router = createBrowserRouter(
 
         {/* Categories Page */}
         <Route path="categories" element={<Categories />} />
+
+        {/* Explore Page */}
+        <Route path="explore/:category" element={<Explore />} />
 
         {/* Checkout Page */}
         <Route path="checkout" element={<Checkout />} />
