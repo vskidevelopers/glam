@@ -1,9 +1,12 @@
-import React from 'react'
+import NotFoundPage from "@/sections/NotFoundPage";
+import React from "react";
 
 function Reports() {
-    return (
-        <div>Reports</div>
-    )
+  return (
+    <div>
+      <NotFoundPage />
+    </div>
+  );
 }
 
-export default Reports
+export default Reports;

@@ -16,22 +16,30 @@ function FloatingOrderSummary({ cart, orderId }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
-    // Copy the order ID to the clipboard
-    navigator.clipboard
-      .writeText(orderId)
-      .then(() => {
-        // Set copied to true to indicate success
-        setCopied(true);
+    if (!orderId) return;
 
-        // Save the order ID in local storage
-        localStorage.setItem("orderId", orderId);
+    if (navigator.clipboard) {
+      navigator.clipboard
+        .writeText(orderId)
+        .then(() => {
+          setCopied(true);
+          localStorage.setItem("orderId", orderId);
+          setTimeout(() => setCopied(false), 2000);
+        })
+        .catch((err) => console.error("Failed to copy: ", err));
+    } else {
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = orderId;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
 
-        // Reset the copied state after a short delay (to show feedback)
-        setTimeout(() => setCopied(false), 2000);
-      })
-      .catch((err) => {
-        console.error("Failed to copy: ", err);
-      });
+      setCopied(true);
+      localStorage.setItem("orderId", orderId);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   // Check if the cart is empty

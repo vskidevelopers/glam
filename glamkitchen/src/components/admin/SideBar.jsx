@@ -90,21 +90,21 @@ const SideBar = () => {
           <Tooltip>
             <TooltipTrigger asChild>
               <Link
-                to="/admin/reviews"
+                to="/admin/users"
                 className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
               >
                 <BarChart className="h-5 w-5" />
-                <span className="sr-only">Reviews</span>
+                <span className="sr-only">Users</span>
               </Link>
             </TooltipTrigger>
-            <TooltipContent side="right">Reviews</TooltipContent>
+            <TooltipContent side="right">Users</TooltipContent>
           </Tooltip>
         </nav>
         <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
           <Tooltip>
             <TooltipTrigger asChild>
               <Link
-                to="/admin/settings"
+                to="/admin/reports"
                 className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
               >
                 <Settings className="h-5 w-5" />

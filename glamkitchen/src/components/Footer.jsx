@@ -85,9 +85,13 @@ const Footer = () => {
                     </a>
                   </li>
                   <li>
-                    <a className="footer-link" href="#">
-                      Returns & Refunds
-                    </a>
+                    <Link
+                      to="/home/order-tracking"
+                      className="footer-link"
+                      href="#"
+                    >
+                      Track Your Order
+                    </Link>
                   </li>
                   <li>
                     <DialogTrigger>

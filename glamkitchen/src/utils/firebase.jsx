@@ -365,8 +365,144 @@ export const useProductFunctions = () => {
       };
     }
   };
+  const updateProduct = async (id, updatedData) => {
+    try {
+      const productDocRef = doc(db, "Products", id);
+      await updateDoc(productDocRef, updatedData);
+      return {
+        collection: "products",
+        success: true,
+        data: updatedData,
+        message: `product_updated_successfully`,
+      };
+    } catch (error) {
+      console.error("Error updating product:", error);
+      return {
+        collection: "products",
+        success: false,
+        data: null,
+        message: `product_updating_failed ${error}`,
+      };
+    }
+  };
 
-  return { addProduct, fetchAllProducts, fetchProductDetail, deleteProduct };
+  const markProductAsTrending = async (id) => {
+    try {
+      const productDocRef = doc(db, "Products", id);
+      await updateDoc(productDocRef, { trending: true });
+      return {
+        collection: "products",
+        success: true,
+        data: { trending: true },
+        message: `product_marked_as_trending`,
+      };
+    } catch (error) {
+      console.error("Error marking product as trending:", error);
+      return {
+        collection: "products",
+        success: false,
+        data: null,
+        message: `product_marking_as_trending_failed ${error}`,
+      };
+    }
+  };
+
+  const markProductAsMonthlyOffer = async (id) => {
+    try {
+      const productDocRef = doc(db, "Products", id);
+      await updateDoc(productDocRef, { monthlyOffer: true });
+      return {
+        collection: "products",
+        success: true,
+        data: { monthlyOffer: true },
+        message: `product_marked_as_monthly_offer`,
+      };
+    } catch (error) {
+      console.error("Error marking product as monthly offer:", error);
+      return {
+        collection: "products",
+        success: false,
+        data: null,
+        message: `product_marking_as_monthly_offer_failed ${error}`,
+      };
+    }
+  };
+
+  const unmarkProduct = async (id) => {
+    try {
+      const productDocRef = doc(db, "Products", id);
+      await updateDoc(productDocRef, { trending: false, monthlyOffer: false });
+      return {
+        collection: "products",
+        success: true,
+        data: { trending: false, monthlyOffer: false },
+        message: `product_unmarked`,
+      };
+    } catch (error) {
+      console.error("Error unmarking product:", error);
+      return {
+        collection: "products",
+        success: false,
+        data: null,
+        message: `product_unmarking_failed ${error}`,
+      };
+    }
+  };
+
+  const fetchAllProductsByAttribute = async (attribute) => {
+    console.log(`fetchAllProductsByAttribute(${attribute}) initialized ...`);
+    const productCollectionRef = collection(db, "Products");
+    try {
+      const productsQuery = query(
+        productCollectionRef,
+        where(attribute, "==", true)
+      );
+      const productsSnapshot = await getDocs(productsQuery);
+      console.log("products_snapshot >> ", productsSnapshot);
+
+      if (productsSnapshot?.empty) {
+        console.log(`No Products Found with ${attribute} `);
+        return {
+          collection: "products",
+          success: false,
+          data: null,
+          message: `No Products Found with ${attribute} `,
+        };
+      } else {
+        console.log("products_snapshot >> ", productsSnapshot);
+        const productsData = productsSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        return {
+          collection: "products",
+          success: true,
+          data: productsData,
+          message: `${productsData.length} products found with ${attribute} `,
+        };
+      }
+    } catch (error) {
+      console.log(`Error in getting products with ${attribute}  >>> `, error);
+      return {
+        collection: "products",
+        success: false,
+        data: null,
+        message: `product_fetching_failed ${error}`,
+      };
+    }
+  };
+
+  return {
+    addProduct,
+    fetchAllProducts,
+    fetchProductDetail,
+    deleteProduct,
+    markProductAsMonthlyOffer,
+    markProductAsTrending,
+    unmarkProduct,
+    fetchAllProductsByAttribute,
+  };
 };
 
 // ///////////////////////////////
@@ -920,12 +1056,20 @@ export function useCartFunctions() {
           ...item,
           price, // Ensure price is stored as a number
           quantity,
-          subtotal: quantity * price,
+          subtotal:
+            quantity *
+            (item.discountPrice && !isNaN(parseFloat(item.discountPrice))
+              ? parseFloat(item.discountPrice)
+              : price), // Use discountPrice if it exists and is a number
         };
         cartData.items.push(newItem);
 
         // Update total quantity and price
-        cartData.totalPrice += quantity * price;
+        cartData.totalPrice +=
+          quantity *
+          (item.discountPrice && !isNaN(parseFloat(item.discountPrice))
+            ? parseFloat(item.discountPrice)
+            : price); // Use discountPrice if it exists and is a number
 
         // Update the cart document in Firebase
         await updateDoc(cartDocRef, cartData);
@@ -942,7 +1086,7 @@ export function useCartFunctions() {
   // Fetch the cart (Firebase version)
   const getCart = async () => {
     try {
-      const cartId = localStorage.getItem("currentCartId");
+      let cartId = localStorage.getItem("currentCartId");
 
       if (!cartId) {
         return { success: false, message: "No cart found" };
@@ -1038,9 +1182,11 @@ export function useCartFunctions() {
       cartData.items[itemIndex].quantity = newQuantity;
 
       // Calculate the subtotal based on discount price if available
-      const priceToUse = cartData.items[itemIndex].discountPrice
-        ? parseFloat(cartData.items[itemIndex].discountPrice)
-        : cartData.items[itemIndex].price;
+      const priceToUse =
+        cartData.items[itemIndex].discountPrice &&
+        !isNaN(parseFloat(cartData.items[itemIndex].discountPrice))
+          ? parseFloat(cartData.items[itemIndex].discountPrice)
+          : cartData.items[itemIndex].price;
 
       cartData.items[itemIndex].subtotal = newQuantity * priceToUse;
 
@@ -1060,6 +1206,7 @@ export function useCartFunctions() {
       return { success: false, error };
     }
   };
+
   return {
     createCart,
     addItemToCart,

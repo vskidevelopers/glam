@@ -1,4 +1,4 @@
-import React from "react";
+import { Link } from "react-router-dom";
 
 const PromotionalSection = () => {
   return (
@@ -13,9 +13,12 @@ const PromotionalSection = () => {
               kitchenware. From cutting-edge technology to chic designs, explore
               the excitement of the new!
             </p>
-            <button className="bg-gray-800 text-white py-2 px-4 rounded">
+            <Link
+              to="/home/shop"
+              className="bg-gray-800 text-white py-2 px-4 rounded"
+            >
               Shop Now
-            </button>
+            </Link>
           </div>
 
           <div className="md:w-3/4">
@@ -50,9 +53,12 @@ const PromotionalSection = () => {
               appliances. From stylish cookware sets to cutting-edge kitchen
               gadgets, you'll find everything you need!
             </p>
-            <button className="bg-gray-800 text-white py-2 px-4 rounded">
+            <Link
+              to="/home/shop"
+              className="bg-gray-800 text-white py-2 px-4 rounded"
+            >
               Shop Now
-            </button>
+            </Link>
           </div>
         </div>
       </div>

@@ -12,7 +12,7 @@ import {
   useAuthenticationFunctions,
   useCartFunctions,
 } from "@/utils/firebase";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import {
   Dialog,
   DialogTrigger,
@@ -134,7 +134,10 @@ function Navbar() {
             <div className="flex items-center space-x-4">
               {/* Shopping Cart Icon */}
 
-              <button className="relative text-black hover:text-flame-500">
+              <Link
+                to="/home/cart"
+                className="relative text-black hover:text-flame-500"
+              >
                 <ShoppingCartIcon className="w-6 h-6" />
                 {/* Cart Item Count Badge */}
                 {cart?.items?.length > 0 && (
@@ -142,7 +145,7 @@ function Navbar() {
                     {cart.items.length}
                   </span>
                 )}
-              </button>
+              </Link>
 
               {/* Profile/Login Button */}
               {isAuthenticated && user ? (
@@ -221,16 +224,6 @@ function Navbar() {
                             ? "Logging in..."
                             : "Use your Google Account"}
                         </Button>
-                        <p className="text-center mt-4">
-                          If you are a hotel looking to manage bookings, please{" "}
-                          <a
-                            href="/login"
-                            className="text-blue-500 hover:underline"
-                          >
-                            click here
-                          </a>{" "}
-                          to sign in with your hotel account.
-                        </p>
                       </DialogDescription>
                     </DialogHeader>
                   </DialogContent>

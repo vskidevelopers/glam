@@ -1,9 +1,12 @@
-import React from 'react'
+import NotFoundPage from "@/sections/NotFoundPage";
+import React from "react";
 
 function UserManagement() {
-    return (
-        <div>UserManagement</div>
-    )
+  return (
+    <div>
+      <NotFoundPage />
+    </div>
+  );
 }
 
-export default UserManagement
+export default UserManagement;

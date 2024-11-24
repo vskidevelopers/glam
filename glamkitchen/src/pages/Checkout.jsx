@@ -16,7 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useOrdersFunctions } from "@/utils/firebase";
+import { useCartFunctions, useOrdersFunctions } from "@/utils/firebase";
 
 function Checkout() {
   const user = false;
@@ -31,9 +31,9 @@ function Checkout() {
 
   const navigate = useNavigate();
 
-  const { getCart } = useCartFunctions(); // Import getCart from useCartFunctions
+  const { getCart } = useCartFunctions();
 
-  const [cart, setCart] = useState(null); // Initialize cart to null
+  const [cart, setCart] = useState(null);
 
   useEffect(() => {
     handleFetchCart();
@@ -117,10 +117,10 @@ function Checkout() {
       const response = await addOrder(finalOrder, "GENERAL");
 
       if (response.success) {
-        console.log("Order added successfully:", response.message);
+        console.log("Order added successfully:", response);
         reset();
         localStorage.clear();
-        navigate("/home/checkout");
+        navigate(`/home/order-confirmation/${response?.orderId}`);
         // Handle success, such as navigating to a thank-you page
       } else {
         console.error("Failed to add order:", response.message);

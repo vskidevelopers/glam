@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-import { useProductFunctions, useUploadImage } from "@/utils/firebase";
+import {
+  useCategoriesFunctions,
+  useProductFunctions,
+  useUploadImage,
+} from "@/utils/firebase";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -13,9 +17,11 @@ export default function AddProductForm() {
   const [files, setFiles] = useState([]);
   const [imageUploadStatus, setImageUploadStatus] = useState(null);
   const [productPhoto, setProductPhoto] = useState(null);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const { uploadImage } = useUploadImage();
   const { addProduct } = useProductFunctions();
+  const { fetchAllCategories } = useCategoriesFunctions();
 
   const dropZoneConfig = {
     maxFiles: 5,
@@ -41,6 +47,32 @@ export default function AddProductForm() {
     blackFriday: false,
   });
   const [tags, setTags] = useState("");
+
+  const getAllCategories = async () => {
+    try {
+      // Fetch categories from the utility function
+      const fetchAllCategoriesResponse = await fetchAllCategories();
+      console.log(
+        "fetchAllCategoriesResponse >>> ",
+        fetchAllCategoriesResponse
+      );
+
+      // Extract category names if response is successful
+      if (fetchAllCategoriesResponse?.success) {
+        const categoryNames = fetchAllCategoriesResponse.data.map(
+          (category) => category.categoryName
+        );
+        setCategories(categoryNames); // Update state with category names
+      } else {
+        console.error(
+          "Failed to fetch categories: ",
+          fetchAllCategoriesResponse?.message || "Unknown error"
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching categories: ", error);
+    }
+  };
 
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
@@ -112,6 +144,10 @@ export default function AddProductForm() {
     }
   };
 
+  useEffect(() => {
+    getAllCategories();
+  }, []);
+
   return (
     <ScrollArea className="h-[80vh] rounded-md border p-4">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
@@ -141,22 +177,33 @@ export default function AddProductForm() {
             </label>
             <select
               className="w-full border rounded p-2"
-              {...register("ProductCategory", {
+              {...register("productCategory", {
                 required: "Please select a product category",
               })}
             >
               <option value="">Select a category</option>
-              <option value="Kitchen Essentials">Kitchen Essentials</option>
-              <option value="Dinnerware">Dinnerware</option>
-              <option value="Storage">Storage</option>
-              <option value="Decor">Decor</option>
+              {categories?.map((category, index) => (
+                <option key={index} value={category}>
+                  {category}
+                </option>
+              ))}
             </select>
             <p className="text-gray-500 text-sm">
               Helps you organize your products and make it easier for customers
               to find what they're looking for.
             </p>
             <p className="text-red-500 text-sm">
-              {errors.ProductCategory?.message}
+              {errors?.productCategory?.message}
+            </p>
+            <p className="text-sm mt-3">
+              Can’t find the category you need?{" "}
+              <a
+                href="/admin/categories"
+                className="text-blue-600 hover:text-blue-800 underline"
+              >
+                Click here
+              </a>{" "}
+              to add more categories in the Categories section of the dashboard.
             </p>
           </div>
         </div>
@@ -178,6 +225,38 @@ export default function AddProductForm() {
           </p>
           <p className="text-red-500 text-sm">
             {errors.productDescription?.message}
+          </p>
+        </div>
+
+        {/* Colors Input */}
+        <div>
+          <label className="block text-sm font-medium">
+            Available Colors (Optional)
+          </label>
+          <Input
+            placeholder="e.g., Red, Blue, White"
+            type="text"
+            {...register("productColors")}
+            className="w-full border rounded p-2"
+          />
+          <p className="text-gray-500 text-sm">
+            Specify the available colors for this product, separated by commas.
+          </p>
+        </div>
+
+        {/* Materials Input */}
+        <div>
+          <label className="block text-sm font-medium">
+            Materials (Optional)
+          </label>
+          <Input
+            placeholder="e.g., Stainless Steel, Granite"
+            type="text"
+            {...register("productMaterials")}
+            className="w-full border rounded p-2"
+          />
+          <p className="text-gray-500 text-sm">
+            Specify the materials used for this product, separated by commas.
           </p>
         </div>
 

@@ -1,49 +1,63 @@
 import { useEffect, useState } from "react";
 import "./section-styles/homeSliders.css";
 import HomeSliders from "@/components/HomeSliders";
+import { useProductFunctions } from "@/utils/firebase";
 
 export default function MonthlyOfferSection() {
   const [currentMonth, setCurrentMonth] = useState("");
   const OPTIONS = { loop: true };
 
-  const KITCHENWARE_PRODUCTS = [
-    {
-      title: "Non-Stick Frying Pan",
-      imageUrl:
-        "https://images.pexels.com/photos/1278005/pexels-photo-1278005.jpeg",
-      description: "Perfect for cooking without the mess.",
-    },
-    {
-      title: "Chef Knife",
-      imageUrl:
-        "https://images.pexels.com/photos/4198169/pexels-photo-4198169.jpeg",
-      description: "Sharp and durable for all your cutting needs.",
-    },
-    {
-      title: "Mixing Bowl Set",
-      imageUrl:
-        "https://shopusa.co.ke/cdn/shop/products/10-piece-bamboo-melamine-mixing-bowls-with-lids-set-shopusa-kenya-4_840x700.jpg",
-      description: "Ideal for baking and food preparation.",
-    },
-    {
-      title: "Blender",
-      imageUrl:
-        "https://www.ramtons.com/media/catalog/product/cache/32b956110227e3c27aafb884dfa406d5/r/m/rm580_1.jpg",
-      description: "Blend smoothies, soups, and sauces with ease.",
-    },
-    {
-      title: "Cutting Board",
-      imageUrl:
-        "https://images.immediate.co.uk/production/volatile/sites/30/2020/08/board-e947b51.jpg",
-      description: "Durable surface for all your chopping tasks.",
-    },
-  ];
+  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState([]);
+
+  const { fetchAllProductsByAttribute } = useProductFunctions();
+
+  // Function to get the current month as a string
+  const getCurrentMonthName = () => {
+    const date = new Date();
+    const monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+    return monthNames[date?.getMonth()];
+  };
+
+  const fetchAllProductsInStore = async () => {
+    setLoading(true);
+    try {
+      const fetchAllProductsByAttributeResponse =
+        await fetchAllProductsByAttribute("monthlyOffer");
+      console.log(
+        "fetch_all_products_response from top monthly deals >> ",
+        fetchAllProductsByAttributeResponse
+      );
+      setProducts(fetchAllProductsByAttributeResponse?.data);
+    } catch (error) {
+      console.error("error_response_fetching_all_products >> ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Get the current month in full format
-    const monthName = new Date().toLocaleString("default", { month: "long" });
-    setCurrentMonth(monthName);
+    console.log("fetching_all_products_in_store_initialized...");
+    fetchAllProductsInStore();
+
+    // Set the current month
+    setCurrentMonth(getCurrentMonthName());
   }, []);
+
+  const limitedProducts = products?.slice(0, 20);
 
   return (
     <div className="py-12">
@@ -61,12 +75,42 @@ export default function MonthlyOfferSection() {
           <h1 className="text-7xl md:text-9xl font-bold">{currentMonth}</h1>
         </div>
         <p className="text-lg text-gray-500 mt-3">
-          Explore our hand-picked selection of premium products
+          Discover exclusive deals and offers this {currentMonth}, hand-picked
+          just for you!
         </p>
       </div>
 
-      {/* Slider showing kitchenware products */}
-      <HomeSliders slides={KITCHENWARE_PRODUCTS} options={OPTIONS} />
+      {/* Loading State */}
+      {loading ? (
+        <div className="relative flex flex-col items-center justify-center py-32">
+          <p className="text-2xl md:text-3xl font-bold text-gray-700 mb-4">
+            Loading Monthly Offers...
+          </p>
+          <div className="spinner"></div> {/* Add spinner/animation here */}
+        </div>
+      ) : (
+        <>
+          {/* Slider or Fallback */}
+          {limitedProducts?.length > 0 ? (
+            <HomeSliders slides={limitedProducts} options={OPTIONS} />
+          ) : (
+            <div className="relative flex flex-col items-center justify-center py-32">
+              {/* Huge Fallback Text */}
+              <div className="absolute top-0 left-0 h-full w-full flex justify-start items-center opacity-10">
+                <h1 className="text-[5rem] md:text-[8rem] pl-5 font-black text-gray-900 uppercase">
+                  0 Products
+                </h1>
+              </div>
+              <p className="text-2xl md:text-3xl font-bold text-gray-700 mb-4">
+                Sorry, No Products Available for this Month!
+              </p>
+              <p className="text-lg md:text-xl text-gray-500">
+                Please check back soon for new offers.
+              </p>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

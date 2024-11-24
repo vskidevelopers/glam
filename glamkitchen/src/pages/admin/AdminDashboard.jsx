@@ -123,6 +123,7 @@ function AdminDashboard() {
         console.log(`Order ID: ${order.id} status updated successfully.`);
         alert(`Order ID: ${order.id} status updated successfully.`);
         handleGetOrders();
+        setSelectedOrder(order);
       } else {
         console.error(`Failed to update Order ID: ${order.id}`);
         return;
@@ -522,7 +523,7 @@ const Alert = ({ variant, children }) => {
   );
 };
 
-const StatusButton = ({ variant, onClick, children }) => {
+export const StatusButton = ({ variant, onClick, children }) => {
   const variants = {
     outline: "border border-gray-400 text-gray-700",
     success: "bg-green-500 text-white hover:bg-green-600",

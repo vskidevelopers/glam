@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { StatusButton } from "@/pages/admin/AdminDashboard";
 import {
   File,
   RefreshCcwDot,
@@ -6,6 +7,8 @@ import {
   PlusCircle,
   Trash2,
   Pencil,
+  Star,
+  TrendingUp,
 } from "lucide-react";
 import {
   Dialog,
@@ -57,7 +60,13 @@ import { useProductFunctions } from "@/utils/firebase";
 export default function ProductManagement() {
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
-  const { fetchAllProducts, deleteProduct } = useProductFunctions();
+  const {
+    fetchAllProducts,
+    deleteProduct,
+    markProductAsMonthlyOffer,
+    markProductAsTrending,
+    unmarkProduct,
+  } = useProductFunctions();
   const fetchAllProductsInStore = async () => {
     setLoading(true);
     try {
@@ -130,98 +139,207 @@ export default function ProductManagement() {
     } else {
       return currentItems.map((product, index) => (
         <TableRow key={index}>
-          {/* Product Image */}
-          <TableCell className="hidden sm:table-cell">
-            <img
-              alt="Product image"
-              className="aspect-square rounded-md object-cover"
-              height="64"
-              src={product.productImage || "/placeholder.svg"}
-              width="64"
-            />
-          </TableCell>
+          <Dialog>
+            {/* Product Image */}
+            <TableCell className="hidden sm:table-cell">
+              <img
+                alt="Product image"
+                className="aspect-square rounded-md object-cover"
+                height="64"
+                src={product.productImage || "/placeholder.svg"}
+                width="64"
+              />
+            </TableCell>
 
-          {/* Product Name */}
-          <TableCell className="font-medium">{product.productName}</TableCell>
+            {/* Product Name */}
+            <TableCell className="font-medium">{product.productName}</TableCell>
 
-          {/* Product Category */}
-          <TableCell className="hidden md:table-cell">
-            {product.ProductCategory}
-          </TableCell>
+            {/* Product Category */}
+            <TableCell className="hidden md:table-cell">
+              {product.ProductCategory}
+            </TableCell>
 
-          {/* Product Tags */}
-          <TableCell className="hidden md:table-cell">
-            <div className="flex flex-wrap gap-2">
-              {product.productTags.map((tag, idx) => (
-                <Badge key={idx} variant="outline" className="text-xs">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          </TableCell>
+            {/* Product Tags */}
+            <TableCell className="hidden md:table-cell">
+              <div className="flex flex-wrap gap-2">
+                {product.productTags.map((tag, idx) => (
+                  <Badge key={idx} variant="outline" className="text-xs">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            </TableCell>
 
-          {/* Product Price */}
-          <TableCell className="hidden md:table-cell">
-            ${product.price}
-          </TableCell>
+            {/* Product Price */}
+            <TableCell className="hidden md:table-cell">
+              ${product.price}
+            </TableCell>
 
-          {/* Stock Status */}
-          <TableCell>
-            <Badge
-              variant={
-                product.stockStatus === "Available" ? "outline" : "secondary"
-              }
-            >
-              {product.stockStatus}
-            </Badge>
-          </TableCell>
+            {/* Stock Status */}
+            <TableCell>
+              <Badge
+                variant={
+                  product.stockStatus === "Available" ? "outline" : "secondary"
+                }
+              >
+                {product.stockStatus}
+              </Badge>
+            </TableCell>
 
-          {/* Product Properties (sale, blackFriday, etc.) */}
-          <TableCell className="hidden md:table-cell">
-            <div className="flex flex-col gap-1">
-              {Object.entries(product.productProperties).map(
-                ([property, value]) =>
-                  value && (
-                    <Badge
-                      key={property}
-                      variant="secondary"
-                      className="text-xs capitalize"
+            {/* Product Properties (sale, blackFriday, etc.) */}
+            <TableCell className="hidden md:table-cell">
+              <div className="flex flex-col gap-1">
+                {Object.entries(product.productProperties).map(
+                  ([property, value]) =>
+                    value && (
+                      <Badge
+                        key={property}
+                        variant="secondary"
+                        className="text-xs capitalize"
+                      >
+                        {property === "blackFriday" ? "Black Friday" : property}
+                      </Badge>
+                    )
+                )}
+              </div>
+            </TableCell>
+
+            {/* Creation Date */}
+            <TableCell className="hidden md:table-cell">
+              {product.createdAt}
+            </TableCell>
+
+            {/* Actions */}
+            <TableCell>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button aria-haspopup="true" size="icon" variant="ghost">
+                    <MoreHorizontal className="h-4 w-4" />
+                    <span className="sr-only">Toggle menu</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+
+                  {/* Edit Option */}
+                  <DropdownMenuItem>
+                    <DialogTrigger
+                      variant="ghost"
+                      className="w-full flex items-center"
                     >
-                      {property === "blackFriday" ? "Black Friday" : property}
-                    </Badge>
-                  )
-              )}
-            </div>
-          </TableCell>
+                      <Pencil className="mr-1 w-5" />
+                      Edit
+                    </DialogTrigger>
+                  </DropdownMenuItem>
 
-          {/* Creation Date */}
-          <TableCell className="hidden md:table-cell">
-            {product.createdAt}
-          </TableCell>
+                  {/* Delete Option */}
+                  <DropdownMenuItem
+                    onClick={() => handleDeleteProduct(product?.id)}
+                  >
+                    <Trash2 className="text-red-700 mr-1 w-5" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </TableCell>
 
-          {/* Actions */}
-          <TableCell>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button aria-haspopup="true" size="icon" variant="ghost">
-                  <MoreHorizontal className="h-4 w-4" />
-                  <span className="sr-only">Toggle menu</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
-                <DropdownMenuItem
-                  onClick={() => handleDeleteProduct(product?.id)}
+            {/* Dialog for Editing */}
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Edit Product</DialogTitle>
+                <DialogDescription>
+                  Modify the details of this product. Save changes to update the
+                  product listing.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex gap-2 justify-center">
+                <StatusButton
+                  variant="outline"
+                  onClick={() => handleMarkProductAsTrending(product)}
                 >
-                  <Trash2 className="text-red-700 mr-1 w-5" />
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </TableCell>
+                  Mark as Trending
+                </StatusButton>
+                <StatusButton
+                  variant="success"
+                  onClick={() => handleMarkProductAsMonthlyOffer(product)}
+                >
+                  Mark as Monthly Offer
+                </StatusButton>
+                <StatusButton
+                  variant="destructive"
+                  onClick={() => handleUnmarkProduct(product)}
+                >
+                  UnMark
+                </StatusButton>
+              </div>
+            </DialogContent>
+          </Dialog>
         </TableRow>
       ));
+    }
+  };
+
+  // Function to mark a product as trending
+  const handleMarkProductAsTrending = async (product) => {
+    try {
+      if (!product?.id) throw new Error("Product ID is missing.");
+
+      const response = await markProductAsTrending(product.id);
+
+      if (response.success) {
+        alert("Product successfully marked as Trending!");
+        fetchAllProductsInStore();
+      } else {
+        alert("Failed to mark product as Trending. Please try again.");
+        fetchAllProductsInStore();
+      }
+    } catch (error) {
+      console.error("Error in handleMarkProductAsTrending:", error);
+      alert(
+        "An unexpected error occurred while marking the product as Trending."
+      );
+    }
+  };
+
+  // Function to mark a product as a monthly offer
+  const handleMarkProductAsMonthlyOffer = async (product) => {
+    try {
+      if (!product?.id) throw new Error("Product ID is missing.");
+
+      const response = await markProductAsMonthlyOffer(product.id);
+
+      if (response.success) {
+        alert("Product successfully marked as Monthly Offer!");
+        fetchAllProductsInStore();
+      } else {
+        alert("Failed to mark product as Monthly Offer. Please try again.");
+        fetchAllProductsInStore();
+      }
+    } catch (error) {
+      console.error("Error in handleMarkProductAsMonthlyOffer:", error);
+      alert(
+        "An unexpected error occurred while marking the product as a Monthly Offer."
+      );
+    }
+  };
+
+  // Function to unmark a product (remove trending or monthly offer tags)
+  const handleUnmarkProduct = async (product) => {
+    try {
+      if (!product?.id) throw new Error("Product ID is missing.");
+
+      const response = await unmarkProduct(product.id);
+
+      if (response.success) {
+        alert("Product successfully unmarked!");
+        fetchAllProductsInStore();
+      } else {
+        alert("Failed to unmark product. Please try again.");
+        fetchAllProductsInStore();
+      }
+    } catch (error) {
+      console.error("Error in handleUnmarkProduct:", error);
+      alert("An unexpected error occurred while unmarking the product.");
     }
   };
 

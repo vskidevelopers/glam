@@ -86,12 +86,12 @@ function Categories() {
             <p>Loading categories...</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 container mx-auto px-5 md:px-20">
-              {cats?.length > 0 ? (
-                cats?.map((category, i) => (
+              {categories?.length > 0 ? (
+                categories?.map((category, i) => (
                   <CategoriesCard
                     key={i}
-                    name={category?.name}
-                    image={category?.image}
+                    name={category?.categoryName}
+                    image={category?.categoryImage}
                   />
                 ))
               ) : (
