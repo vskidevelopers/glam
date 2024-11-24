@@ -95,12 +95,6 @@ export default function Login() {
             >
               {loading ? "Logging in..." : "Log in"}
             </Button>
-            <p className="text-center mt-4 text-gray-600">
-              Don't have an account?{" "}
-              <a href="/signup" className="text-flame-500 hover:underline">
-                Sign up here
-              </a>
-            </p>
           </CardFooter>
         </form>
       </Card>
