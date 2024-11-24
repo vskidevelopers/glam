@@ -33,11 +33,12 @@ import AdminCategories from "./pages/admin/AdminCategories";
 import TrackOrder from "./pages/TrackOrder";
 import Categories from "./pages/Categories";
 import Explore from "./pages/Explore";
+import WelcomeScreen from "./pages/WelcomeScreen";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route>
-      <Route path="/" element={<MaintenancePage />} />
+      <Route path="/" element={<WelcomeScreen />} />
       <Route path="/home" element={<UserUi />}>
         {/* Homepage */}
         <Route index element={<Home />} />
