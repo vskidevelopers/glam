@@ -151,6 +151,18 @@ export default function AddProductForm() {
   return (
     <ScrollArea className="h-[80vh] rounded-md border p-4">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        <div>
+          <label className="block text-sm font-medium">Select File</label>
+          <input
+            type="file"
+            onChange={handleImageUpload}
+            className="block w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 cursor-pointer"
+          />
+          <p className="text-gray-500 text-sm">
+            Select a file to upload. SVG, PNG, JPG, or GIF.
+          </p>
+        </div>
+
         <div className="grid grid-cols-12 gap-4">
           <div className="col-span-6">
             <label className="block text-sm font-medium">Product Name</label>
@@ -260,18 +272,6 @@ export default function AddProductForm() {
           </p>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium">Select File</label>
-          <input
-            type="file"
-            onChange={handleImageUpload}
-            className="block w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 cursor-pointer"
-          />
-          <p className="text-gray-500 text-sm">
-            Select a file to upload. SVG, PNG, JPG, or GIF.
-          </p>
-        </div>
-
         <div className="grid grid-cols-12 gap-4">
           <div className="col-span-4">
             <label className="block text-sm font-medium">Price</label>
@@ -352,7 +352,9 @@ export default function AddProductForm() {
           </p>
         </div>
 
-        <Button type="submit">Submit</Button>
+        <Button disabled={loading} type="submit">
+          {loading ? "Loading..." : "Save Product"}
+        </Button>
       </form>
     </ScrollArea>
   );

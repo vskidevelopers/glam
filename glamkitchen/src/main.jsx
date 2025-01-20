@@ -38,8 +38,7 @@ import WelcomeScreen from "./pages/WelcomeScreen";
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route>
-      <Route path="/" element={<WelcomeScreen />} />
-      <Route path="/home" element={<UserUi />}>
+      <Route path="/" element={<UserUi />}>
         {/* Homepage */}
         <Route index element={<Home />} />
 
