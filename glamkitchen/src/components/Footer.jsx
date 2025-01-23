@@ -80,16 +80,12 @@ const Footer = () => {
                 <h6 className="text-2xl uppercase mb-3">Customer Services</h6>
                 <ul className="list-unstyled mb-0">
                   <li>
-                    <a className="footer-link" href="#">
+                    <Link className="footer-link" to="/contact">
                       Help & Contact Us
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <Link
-                      to="/home/order-tracking"
-                      className="footer-link"
-                      href="#"
-                    >
+                    <Link to="/order-tracking" className="footer-link" href="#">
                       Track Your Order
                     </Link>
                   </li>
@@ -142,7 +138,10 @@ const Footer = () => {
                     </a>
                   </li>
                   <li>
-                    <a className="footer-link" href="#">
+                    <a
+                      className="footer-link"
+                      href="https://www.instagram.com/_glam.yourkitchen/"
+                    >
                       Instagram
                     </a>
                   </li>

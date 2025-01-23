@@ -223,14 +223,24 @@ function ProductDetails() {
                 <h2 className="text-2xl font-bold mb-2">
                   {product.productName}
                 </h2>
-                <p className="text-xl font-semibold mb-4">${product.price}</p>
+                <p className="text-xl font-semibold mb-4 whitespace-wrap">
+                  Ksh{" "}
+                  {product.discountPrice ? (
+                    <span className="text-gray-500 line-through">
+                      {" "}
+                      product?.price{" "}
+                    </span>
+                  ) : (
+                    product?.price
+                  )}
+                </p>
                 {product.discountPrice && (
                   <div className="flex items-center gap-2 mb-4">
                     <span className="text-xl font-semibold text-green-600">
-                      Now: ${product.discountPrice}
+                      Now: Ksh {product.discountPrice}
                     </span>
                     <Badge className="bg-green-600 text-white px-3 py-1 rounded-full">
-                      Save ${product.price - product.discountPrice}
+                      Save Ksh {product.price - product.discountPrice}
                     </Badge>
                   </div>
                 )}

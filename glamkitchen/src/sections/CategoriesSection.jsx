@@ -81,7 +81,7 @@ export default function CategoriesSection() {
             to="shop"
             style={{
               backgroundImage:
-                "url(https://blog.hignellrentals.com/hubfs/Untitled%20design%20%281%29.png)",
+                "url(https://t4.ftcdn.net/jpg/09/56/55/79/360_F_956557990_elyjOhKGxc0GmhuxD12NXzFgpEeK48Il.jpg)",
             }}
           >
             <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-60 transition-opacity duration-300"></div>

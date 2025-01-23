@@ -493,6 +493,52 @@ export const useProductFunctions = () => {
     }
   };
 
+  const fetchAllProductsByCategory = async (category) => {
+    console.log(`fetchAllProductsByCategory(${category}) initialized ...`);
+    const productCollectionRef = collection(db, "Products");
+    try {
+      const productsQuery = query(
+        productCollectionRef,
+        where("productCategory", "==", category)
+      );
+      const productsSnapshot = await getDocs(productsQuery);
+      console.log("products_snapshot >> ", productsSnapshot);
+
+      if (productsSnapshot?.empty) {
+        console.log(`No Products Found in category: ${category}`);
+        return {
+          collection: "products",
+          success: false,
+          data: null,
+          message: `No Products Found in category: ${category}`,
+        };
+      } else {
+        const productsData = productsSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        return {
+          collection: "products",
+          success: true,
+          data: productsData,
+          message: `${productsData.length} products found in category: ${category}`,
+        };
+      }
+    } catch (error) {
+      console.log(
+        `Error in getting products in category: ${category} >>> `,
+        error
+      );
+      return {
+        collection: "products",
+        success: false,
+        data: null,
+        message: `product_fetching_failed ${error}`,
+      };
+    }
+  };
+
   return {
     addProduct,
     fetchAllProducts,
@@ -502,6 +548,7 @@ export const useProductFunctions = () => {
     markProductAsTrending,
     unmarkProduct,
     fetchAllProductsByAttribute,
+    fetchAllProductsByCategory,
   };
 };
 
@@ -606,7 +653,35 @@ export const useCategoriesFunctions = () => {
     }
   };
 
-  return { addCategory, fetchAllCategories, fetchCategoryDetail };
+  // Function to delete a category
+  const deleteCategory = async (id) => {
+    console.log("delete_category() initialized ...");
+    const categoryItemRef = doc(db, "Categories", id); // Reference to the document
+
+    try {
+      await deleteDoc(categoryItemRef); // Delete the document
+      console.log("Category deleted successfully");
+      return {
+        success: true,
+        data: null,
+        message: `category_deleted_successfully`,
+      };
+    } catch (error) {
+      console.log("Error in deleting category >>> ", error);
+      return {
+        success: false,
+        data: null,
+        message: `category_deletion_failed ${error}`,
+      };
+    }
+  };
+
+  return {
+    addCategory,
+    fetchAllCategories,
+    fetchCategoryDetail,
+    deleteCategory,
+  };
 };
 
 // /////////////////////////////
@@ -1215,3 +1290,77 @@ export function useCartFunctions() {
     updateCartItemQuantity,
   };
 }
+
+// //////////////////////////////////
+//   contact us Related Functions //
+// ////////////////////////////////
+
+export const useContactUsFunctions = () => {
+  // Add a new contact message
+  const addContactMessage = async (data) => {
+    const contactUsCollectionRef = collection(db, "ContactUs");
+    try {
+      const newContactRef = doc(contactUsCollectionRef); // Automatically generates a unique ID
+      await setDoc(newContactRef, { ...data, status: "unread" });
+      return {
+        success: true,
+        message: "Contact message submitted successfully",
+      };
+    } catch (error) {
+      console.error("Error adding contact message:", error);
+      return { success: false, message: "Failed to submit contact message" };
+    }
+  };
+
+  // Retrieve all contact messages
+  const getAllContactMessages = async () => {
+    const contactUsCollectionRef = collection(db, "ContactUs");
+    try {
+      const contactMessagesSnapshot = await getDocs(contactUsCollectionRef);
+
+      if (contactMessagesSnapshot.empty) {
+        console.log("No contact messages found");
+        return {
+          success: false,
+          data: [],
+          message: "No contact messages available",
+        };
+      } else {
+        const contactMessages = contactMessagesSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        return {
+          success: true,
+          data: contactMessages,
+          message: "Contact messages retrieved successfully",
+        };
+      }
+    } catch (error) {
+      console.error("Error retrieving contact messages:", error);
+      return {
+        success: false,
+        data: [],
+        message: "Failed to retrieve contact messages",
+      };
+    }
+  };
+
+  // Delete a contact message by ID
+  const deleteContactMessageById = async (id) => {
+    const contactDocRef = doc(db, "ContactUs", id);
+    try {
+      await deleteDoc(contactDocRef);
+      return { success: true, message: "Contact message deleted successfully" };
+    } catch (error) {
+      console.error("Error deleting contact message:", error);
+      return { success: false, message: "Failed to delete contact message" };
+    }
+  };
+
+  return {
+    addContactMessage,
+    getAllContactMessages,
+    deleteContactMessageById,
+  };
+};

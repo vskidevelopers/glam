@@ -12,7 +12,7 @@ const OrderSummary = ({ cart, subtotal }) => {
 
   const handleCheckout = () => {
     // Proceed to checkout functionality here
-    navigate("/home/checkout");
+    navigate("/checkout");
   };
 
   return (
@@ -26,7 +26,9 @@ const OrderSummary = ({ cart, subtotal }) => {
       <div className="space-y-2 mb-4">
         <div className="flex justify-between">
           <span>Subtotal</span>
-          <span>
+          <span className="whitespace-nowrap">
+            {" "}
+            Ksh{" "}
             {typeof subtotal === "string"
               ? parseFloat(subtotal).toFixed(2)
               : subtotal.toFixed(2)}
@@ -35,7 +37,8 @@ const OrderSummary = ({ cart, subtotal }) => {
 
         <div className="flex justify-between font-semibold">
           <span>Total</span>
-          <span>
+          <span className="whitespace-nowrap">
+            Ksh{" "}
             {typeof total === "string"
               ? parseFloat(total).toFixed(2)
               : total.toFixed(2)}

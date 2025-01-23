@@ -14,7 +14,7 @@ const PromotionalSection = () => {
               the excitement of the new!
             </p>
             <Link
-              to="/home/shop"
+              to="/shop"
               className="bg-gray-800 text-white py-2 px-4 rounded"
             >
               Shop Now
@@ -54,7 +54,7 @@ const PromotionalSection = () => {
               gadgets, you'll find everything you need!
             </p>
             <Link
-              to="/home/shop"
+              to="/shop"
               className="bg-gray-800 text-white py-2 px-4 rounded"
             >
               Shop Now

@@ -24,11 +24,11 @@ import {
 import { Button } from "./ui/button";
 
 const navItems = [
-  { name: "Home", href: "/home" },
-  { name: "Shop", href: "/home/shop" },
-  { name: "Categories", href: "/home/categories" },
-  { name: "Cart", href: "/home/cart" },
-  { name: "Contact", href: "/home/contact" },
+  { name: "Home", href: "/" },
+  { name: "Shop", href: "/shop" },
+  { name: "Categories", href: "/categories" },
+  { name: "Cart", href: "/cart" },
+  { name: "Contact", href: "/contact" },
 ];
 
 function classNames(...classes) {
@@ -135,7 +135,7 @@ function Navbar() {
               {/* Shopping Cart Icon */}
 
               <Link
-                to="/home/cart"
+                to="/cart"
                 className="relative text-black hover:text-flame-500"
               >
                 <ShoppingCartIcon className="w-6 h-6" />

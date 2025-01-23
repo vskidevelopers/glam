@@ -46,11 +46,15 @@ const FloatingProductCard = ({ item }) => {
         <div className="text-lg font-semibold mb-2">
           {discountPrice ? (
             <>
-              <span className="line-through text-gray-500">${price}</span>
-              <span className="text-red-500 ml-2">${discountPrice}</span>
+              <span className="line-through text-gray-500 whitespace-nowrap">
+                Ksh {price}
+              </span>
+              <span className="text-red-500 ml-2 whitespace-nowrap">
+                Ksh {discountPrice}
+              </span>
             </>
           ) : (
-            <span>${price}</span>
+            <span className="whitespace-nowrap">Ksh {price}</span>
           )}
         </div>
 

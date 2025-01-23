@@ -52,7 +52,12 @@ function Checkout() {
       }
     } catch (error) {
       console.error("Error fetching cart:", error);
-      alert("An error occurred while fetching the cart. Please try again.");
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description:
+          "An error occurred while fetching a cart. Please try again.",
+      });
     }
   };
   const currentDate = new Date();
@@ -120,7 +125,7 @@ function Checkout() {
         console.log("Order added successfully:", response);
         reset();
         localStorage.clear();
-        navigate(`/home/order-confirmation/${response?.orderId}`);
+        navigate(`/order-confirmation/${response?.orderId}`);
         // Handle success, such as navigating to a thank-you page
       } else {
         console.error("Failed to add order:", response.message);

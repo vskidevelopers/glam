@@ -46,29 +46,6 @@ function Categories() {
     fetchAllCategoriesInStore();
   }, []);
 
-  const cats = [
-    {
-      name: "Cookware",
-      image:
-        "https://media.istockphoto.com/id/478769830/photo/kitchen-cookware-set.jpg?s=612x612&w=0&k=20&c=47NXX65DxdTeUc_QZsTyv8hf-va2wOKI8ujWcNdiYp8=",
-    },
-    {
-      name: "Bakeware",
-      image:
-        "https://t3.ftcdn.net/jpg/00/20/23/76/360_F_20237687_kJ6De6jxOSQtDHj79UH9XYVsqQPZUtK5.jpg",
-    },
-    {
-      name: "Storage",
-      image:
-        "https://media.istockphoto.com/id/1307509547/photo/organised-pantry-items-with-variety-of-nonperishable-food-staples-and-preserved-foods-in-jars.jpg?s=612x612&w=0&k=20&c=46Thbh0iPlvd0cxv7vhCpDhDpMxuSm2nBd8XO1wpTYc=",
-    },
-    {
-      name: "Utensils",
-      image:
-        "https://media.istockphoto.com/id/586162072/photo/various-kitchen-utensils.jpg?s=612x612&w=0&k=20&c=auwz9ZHqkG_UlKw5y-8UqvMLznA2PySQ_Jt3ameL1aU=",
-    },
-  ];
-
   return (
     <main className="grid pt-20 flex-1 items-start gap-4 p-4 sm:px-6 sm:pt-24 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
       <div className="grid auto-rows-max items-start gap-4 md:gap-8 sm:col-span-3 ">

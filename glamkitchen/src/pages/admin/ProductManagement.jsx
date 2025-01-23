@@ -171,8 +171,8 @@ export default function ProductManagement() {
             </TableCell>
 
             {/* Product Price */}
-            <TableCell className="hidden md:table-cell">
-              ${product.price}
+            <TableCell className="hidden md:table-cell whitespace-nowrap">
+              Ksh {product.price}
             </TableCell>
 
             {/* Stock Status */}
@@ -413,10 +413,11 @@ export default function ProductManagement() {
                       Category
                     </TableHead>
                     <TableHead className="hidden md:table-cell">Tags</TableHead>
-                    <TableHead>Stock Status</TableHead>
+
                     <TableHead className="hidden md:table-cell">
                       Price
                     </TableHead>
+                    <TableHead>Stock Status</TableHead>
                     <TableHead className="hidden md:table-cell">
                       Product Properties
                     </TableHead>

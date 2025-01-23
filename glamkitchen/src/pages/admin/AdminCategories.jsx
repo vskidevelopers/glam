@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import CategoryForm from "@/components/forms/CategoryForm";
 import CategoriesCard from "@/components/CategoriesCard";
 import { useCategoriesFunctions } from "@/utils/firebase";
+import AdminCategoriesCard from "@/components/admin/AdminCategoriesCard";
 
 export default function AdminCategories() {
   const [categories, setCategories] = useState([]);
@@ -45,29 +46,6 @@ export default function AdminCategories() {
     console.log("fetching_all_categories_in_store_initialized ...");
     fetchAllCategoriesInStore();
   }, []);
-
-  const cats = [
-    {
-      name: "Cookware",
-      image:
-        "https://media.istockphoto.com/id/478769830/photo/kitchen-cookware-set.jpg?s=612x612&w=0&k=20&c=47NXX65DxdTeUc_QZsTyv8hf-va2wOKI8ujWcNdiYp8=",
-    },
-    {
-      name: "Bakeware",
-      image:
-        "https://t3.ftcdn.net/jpg/00/20/23/76/360_F_20237687_kJ6De6jxOSQtDHj79UH9XYVsqQPZUtK5.jpg",
-    },
-    {
-      name: "Storage",
-      image:
-        "https://media.istockphoto.com/id/1307509547/photo/organised-pantry-items-with-variety-of-nonperishable-food-staples-and-preserved-foods-in-jars.jpg?s=612x612&w=0&k=20&c=46Thbh0iPlvd0cxv7vhCpDhDpMxuSm2nBd8XO1wpTYc=",
-    },
-    {
-      name: "Utensils",
-      image:
-        "https://media.istockphoto.com/id/586162072/photo/various-kitchen-utensils.jpg?s=612x612&w=0&k=20&c=auwz9ZHqkG_UlKw5y-8UqvMLznA2PySQ_Jt3ameL1aU=",
-    },
-  ];
 
   return (
     <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 lg:grid-cols-3 xl:grid-cols-3">
@@ -139,12 +117,14 @@ export default function AdminCategories() {
             <p>Loading categories...</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 container mx-auto px-5 md:px-20">
-              {cats?.length > 0 ? (
-                cats?.map((category, i) => (
-                  <CategoriesCard
+              {categories?.length > 0 ? (
+                categories?.map((category, i) => (
+                  <AdminCategoriesCard
                     key={i}
-                    name={category?.name}
-                    image={category?.image}
+                    name={category?.categoryName}
+                    image={category?.categoryImage}
+                    id={category?.id}
+                    refresh={fetchAllCategoriesInStore}
                   />
                 ))
               ) : (

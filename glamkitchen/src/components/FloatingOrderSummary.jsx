@@ -92,7 +92,9 @@ function FloatingOrderSummary({ cart, orderId }) {
                   <span className="text-muted-foreground">
                     {item.productName} x <span>{item.quantity}</span>
                   </span>
-                  <span>${item.subtotal.toFixed(2)}</span>
+                  <span className="whitespace-nowrap">
+                    Ksh {item.subtotal.toFixed(2)}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -104,7 +106,9 @@ function FloatingOrderSummary({ cart, orderId }) {
               </li>
               <li className="flex items-center justify-between">
                 <span className="text-muted-foreground">Total Price</span>
-                <span>${totalPrice.toFixed(2)}</span>
+                <span className="whitespace-nowrap">
+                  Ksh {totalPrice.toFixed(2)}
+                </span>
               </li>
             </ul>
           </div>

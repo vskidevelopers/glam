@@ -100,7 +100,10 @@ export default {
           5: "hsl(var(--chart-5))",
         },
       },
+      textStroke: {
+        white: "1px white",
+      },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate", "tailwindcss-textstroke")],
 };

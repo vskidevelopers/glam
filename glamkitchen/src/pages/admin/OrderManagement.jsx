@@ -214,8 +214,8 @@ export default function OrderManagement() {
                 <span>{order?.paymentInfo?.method}</span>
               )}
             </TableCell>
-            <TableCell className="text-right">
-              {order?.cart?.totalPrice}
+            <TableCell className="text-right whitespace-nowrap">
+              Ksh {order?.cart?.totalPrice}
             </TableCell>
             <TableCell className="text-center">
               <button

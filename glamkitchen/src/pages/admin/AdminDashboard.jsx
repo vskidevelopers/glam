@@ -202,8 +202,8 @@ function AdminDashboard() {
               <span>{order?.paymentInfo?.method}</span>
             )}
           </TableCell>
-          <TableCell className="text-center">
-            {order?.cart?.totalPrice}
+          <TableCell className="text-center whitespace-nowrap">
+            Ksh {order?.cart?.totalPrice}
           </TableCell>
         </TableRow>
       ));

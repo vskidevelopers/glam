@@ -106,8 +106,8 @@ const CartTable = ({ cart, fetchCart }) => {
               />
             </TableCell>
             <TableCell className="font-medium">{item.productName}</TableCell>
-            <TableCell>
-              $
+            <TableCell className="whitespace-nowrap">
+              Ksh{" "}
               {(item.discountPrice
                 ? parseFloat(item.discountPrice)
                 : item.price
@@ -130,8 +130,8 @@ const CartTable = ({ cart, fetchCart }) => {
                 </button>
               </div>
             </TableCell>
-            <TableCell>
-              $
+            <TableCell className="whitespace-nowrap">
+              Ksh{" "}
               {(
                 (item.discountPrice
                   ? parseFloat(item.discountPrice)

@@ -72,11 +72,21 @@ function ProductCard({ product, index, loading }) {
         setSubTotal(deleteResult.data.totalPrice);
       } else {
         console.error("Error deleting item from cart:", deleteResult.error);
-        alert("An error occurred while deleting the item. Please try again.");
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description:
+            "An error occurred while deleting the item. Please try again.",
+        });
       }
     } catch (error) {
       console.error("Error deleting item from cart:", error);
-      alert("An error occurred while deleting the item. Please try again.");
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description:
+          "An error occurred while deleting the item. Please try again.",
+      });
     }
   };
 
@@ -98,7 +108,12 @@ function ProductCard({ product, index, loading }) {
       }
     } catch (error) {
       console.error("Error fetching cart:", error);
-      alert("An error occurred while fetching the cart. Please try again.");
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description:
+          "An error occurred while creating a cart. Please try again.",
+      });
       setFetchLoading(false);
     }
   };
@@ -132,7 +147,13 @@ function ProductCard({ product, index, loading }) {
           localStorage.setItem("currentCartId", cartId);
         } else {
           console.error("Error creating cart:", newCartResult.error);
-          alert("An error occurred while creating a cart. Please try again.");
+          toast({
+            variant: "destructive",
+            title: "Uh oh! Something went wrong.",
+            description:
+              "An error occurred while creating a cart. Please try again.",
+          });
+
           return; // Stop execution if cart creation fails
         }
       }
@@ -149,20 +170,28 @@ function ProductCard({ product, index, loading }) {
         // ... other state updates as needed
 
         // Optionally, display a success message to the user
-        alert("Item added to cart successfully!");
+        toast({
+          title: "Item Added successfully",
+        });
         console.log("cart state >> ", cartItems);
       } else {
         // Handle errors
         console.error("Error adding item to cart:", addItemResult.error);
-        alert(
-          "An error occurred while adding the item to your cart. Please try again."
-        );
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description:
+            "An error occurred while adding the item to your cart . Please try again.",
+        });
       }
     } catch (error) {
       console.error("An error occurred while adding item to cart >> ", error);
-      alert(
-        "An error occurred while adding the item to your cart. Please try again."
-      );
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description:
+          "An error occurred while adding the item to your cart . Please try again.",
+      });
     }
   };
 
@@ -329,9 +358,9 @@ function ProductCard({ product, index, loading }) {
         <h6>
           <a
             href="#"
-            className="text-xl font-medium text-gray-800 hover:text-robin_egg_blue-900"
+            className="text-xl font-medium text-gray-800 hover:text-robin_egg_blue-400"
           >
-            {productName}
+            {productName || product?.productName}
           </a>
         </h6>
 
@@ -367,6 +396,7 @@ function ProductCard({ product, index, loading }) {
 export default ProductCard;
 
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "@/hooks/use-toast";
 
 export function SkeletonCard() {
   return (
