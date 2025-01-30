@@ -12,14 +12,15 @@ import {
 } from "@/utils/firebase";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Progress } from "../ui/progress";
 
 export default function AddProductForm() {
   const [files, setFiles] = useState([]);
-  const [imageUploadStatus, setImageUploadStatus] = useState(null);
+  const [imageUploadStatus, setImageUploadStatus] = useState("idle");
   const [productPhoto, setProductPhoto] = useState(null);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
-  const { uploadImage } = useUploadImage();
+  const { uploadImage, imageUploadProgress } = useUploadImage();
   const { addProduct } = useProductFunctions();
   const { fetchAllCategories } = useCategoriesFunctions();
 
@@ -161,6 +162,9 @@ export default function AddProductForm() {
           <p className="text-gray-500 text-sm">
             Select a file to upload. SVG, PNG, JPG, or GIF.
           </p>
+          {imageUploadStatus === "pending" && (
+            <Progress value={imageUploadProgress} className="w-[60%] mt-2" />
+          )}
         </div>
 
         <div className="grid grid-cols-12 gap-4">
