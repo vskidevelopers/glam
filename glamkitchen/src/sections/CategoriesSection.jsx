@@ -22,7 +22,7 @@ export default function CategoriesSection() {
             to="shop"
             style={{
               backgroundImage:
-                "url(https://shopusa.co.ke/cdn/shop/files/tramontina-11-piece-nonstick-porcelain-enamel-cookware-set-shopusa-kenya-2_660x660.jpg)",
+                "url(https://firebasestorage.googleapis.com/v0/b/glam-your-kitchen.firebasestorage.app/o/products%2F05e93c4f-ddd8-44c5-a018-9e267b29646f.jpeg?alt=media&token=ae6a4204-5595-4d9b-9319-fb8d6296e796)",
             }}
           >
             <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-60 transition-opacity duration-300"></div>
