@@ -27,6 +27,7 @@ import {
   ref,
   uploadBytesResumable,
   getDownloadURL,
+  deleteObject,
 } from "firebase/storage";
 import { useState, useCallback } from "react";
 
@@ -345,16 +346,36 @@ export const useProductFunctions = () => {
       };
     }
   };
+
   const deleteProduct = async (id) => {
     try {
       const productDocRef = doc(db, "Products", id);
-      await deleteDoc(productDocRef);
-      return {
-        collection: "products",
-        success: true,
-        data: null,
-        message: `product_deleted_successfully`,
-      };
+      const productDoc = await getDoc(productDocRef);
+
+      if (productDoc.exists()) {
+        const imagePath = productDoc.data().productImage;
+
+        if (imagePath) {
+          const imageRef = ref(storage, imagePath);
+          await deleteObject(imageRef);
+        }
+
+        await deleteDoc(productDocRef);
+
+        return {
+          collection: "products",
+          success: true,
+          data: null,
+          message: `product_deleted_successfully`,
+        };
+      } else {
+        return {
+          collection: "products",
+          success: false,
+          data: null,
+          message: `product_not_found`,
+        };
+      }
     } catch (error) {
       console.error("Error deleting product:", error);
       return {
@@ -365,6 +386,7 @@ export const useProductFunctions = () => {
       };
     }
   };
+
   const updateProduct = async (id, updatedData) => {
     try {
       const productDocRef = doc(db, "Products", id);
@@ -657,9 +679,17 @@ export const useCategoriesFunctions = () => {
   const deleteCategory = async (id) => {
     console.log("delete_category() initialized ...");
     const categoryItemRef = doc(db, "Categories", id); // Reference to the document
+    const categoryDoc = await getDoc(categoryItemRef);
 
     try {
-      await deleteDoc(categoryItemRef); // Delete the document
+      if (categoryDoc.exists()) {
+        const imagePath = categoryDoc.data().categoryImage; // Get the image path from the document
+        if (imagePath) {
+          const imageRef = ref(storage, imagePath); // Create a reference to the image in Cloud Storage
+          await deleteObject(imageRef); // Delete the image from Cloud Storage
+        }
+        await deleteDoc(categoryItemRef); // Delete the document
+      }
       console.log("Category deleted successfully");
       return {
         success: true,

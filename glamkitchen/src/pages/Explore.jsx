@@ -2,6 +2,7 @@ import ProductCard from "@/components/ProductCard";
 import { useProductFunctions } from "@/utils/firebase";
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import Categories from "@/components/Categories";
 
 const Explore = () => {
   const { fetchAllProductsByCategory } = useProductFunctions();
@@ -43,7 +44,7 @@ const Explore = () => {
             Loading products...
           </p>
           <Link
-            to="/"
+            to="/shop"
             className="mt-4 inline-block px-6 py-2 bg-flame-500 text-white rounded-lg hover:bg-flame-600 transition-colors"
           >
             Go Back
@@ -61,7 +62,7 @@ const Explore = () => {
             {error}
           </p>
           <Link
-            to="/"
+            to="/categories"
             className="mt-4 inline-block px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
           >
             Go Back
@@ -77,15 +78,27 @@ const Explore = () => {
         Products in <span className="text-flame underline">{category}</span>{" "}
         category
       </h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-        {products.map((product, i) => (
-          <div
-            key={i}
-            className="border border-gray-300 rounded-lg p-4 shadow hover:shadow-md transition"
-          >
-            <ProductCard product={product} index={1 + i} loading={loading} />
+
+      <div className="w-full flex flex-col-reverse md:flex-row px-10">
+        <div className="w-full md:w-1/3">
+          <Categories />
+        </div>
+        <div className="w-full md:w-2/3 ml-0 md:ml-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+            {products?.map((product, i) => (
+              <div
+                key={i}
+                className="border border-gray-300 rounded-lg p-4 shadow hover:shadow-md transition"
+              >
+                <ProductCard
+                  product={product}
+                  index={1 + i}
+                  loading={loading}
+                />
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
     </div>
   );

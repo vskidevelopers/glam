@@ -2,6 +2,7 @@ import { User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Button } from "./ui/button";
+import { Instagram } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -85,14 +86,20 @@ const Footer = () => {
                     </Link>
                   </li>
                   <li>
-                    <Link to="/order-tracking" className="footer-link" href="#">
-                      Track Your Order
+                    <Link
+                      to="/order-tracking"
+                      className="footer-link flex items-center font-bold text-lg text-flame-600 hover:text-flame-800 transition duration-300"
+                    >
+                      <span className="mr-2">📦</span> Track Your Order
                     </Link>
                   </li>
                   <li>
                     <DialogTrigger>
-                      <a className="footer-link" href="#">
-                        Store Locator
+                      <a
+                        className="footer-link flex items-center font-bold text-lg text-robin-600 hover:text-robin-800 transition duration-300"
+                        href="#"
+                      >
+                        <span className="mr-2">📍</span> Store Locator
                       </a>
                     </DialogTrigger>
                   </li>
@@ -139,12 +146,16 @@ const Footer = () => {
                   </li>
                   <li>
                     <a
-                      className="footer-link"
+                      className="footer-link flex items-center space-x-2"
                       href="https://www.instagram.com/_glam.yourkitchen/"
                     >
-                      Instagram
+                      <Instagram className="text-pink-500 animate-bounce" />
+                      <span className="box-decoration-slice bg-gradient-to-r from-indigo-600 to-pink-500 px-2 text-white">
+                        Instagram
+                      </span>
                     </a>
                   </li>
+
                   <li>
                     <a className="footer-link" href="#">
                       Facebook

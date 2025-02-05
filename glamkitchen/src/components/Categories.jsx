@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Categories = () => {
   const categories = [
@@ -40,13 +41,12 @@ const Categories = () => {
             {category.name}
           </h2>
           <ul className="list-disc ml-6 space-y-2">
-            {category.subcategories.map((subcategory) => (
-              <li
-                key={subcategory}
-                className="hover:text-flame-500 cursor-pointer text-gray-700"
-              >
-                {subcategory}
-              </li>
+            {category.subcategories.map((subcategory, i) => (
+              <Link key={i} to={`/explore/${subcategory}`}>
+                <li className="hover:text-flame-500 cursor-pointer text-gray-700">
+                  {subcategory}
+                </li>
+              </Link>
             ))}
           </ul>
         </div>
