@@ -131,7 +131,7 @@ function CartItem({ item, onQuantityChange, onRemove, fetchCart }) {
         {/* Trash Icon */}
         <button
           className="text-red-500 hover:text-red-700"
-          onClick={() => onRemove && onRemove(item.productId)}
+          onClick={() => onRemove && onRemove(item.id)}
         >
           <Trash className="w-6 h-6" />
         </button>

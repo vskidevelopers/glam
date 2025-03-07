@@ -58,6 +58,10 @@ const router = createBrowserRouter(
 
         {/* Explore Page */}
         <Route path="explore/:category" element={<Explore />} />
+        <Route
+          path="explore/:category/:productId"
+          element={<ProductDetails />}
+        />
 
         {/* Checkout Page */}
         <Route path="checkout" element={<Checkout />} />

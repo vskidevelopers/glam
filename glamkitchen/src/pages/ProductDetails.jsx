@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import HeroSection from "@/sections/HeroSection";
 import { Button } from "@/components/ui/button";
-import { ShoppingCart, Heart, RefreshCcwDot } from "lucide-react";
+import { ShoppingCart, Heart, RefreshCcwDot, HelpCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { useProductFunctions, useCartFunctions } from "@/utils/firebase";
@@ -16,6 +16,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
@@ -55,6 +62,8 @@ function ProductDetails() {
     try {
       const response = await fetchProductDetail(productId);
       if (response?.success) {
+        console.log("product details fetched >> ", response?.data);
+
         setProduct(response.data);
       } else {
         console.error("Failed to fetch product details.");
@@ -76,14 +85,15 @@ function ProductDetails() {
 
     try {
       // 1. Check for existing cart ID in localStorage
-      let cartId = localStorage.getItem("currentCartId");
+      let localCartId = localStorage.getItem("currentCartId");
 
       // 2. If no cart exists, create one
-      if (!cartId) {
+      if (!localCartId) {
         const newCartResult = await createCart(); // Call your createCart function
         if (newCartResult.success) {
-          cartId = newCartResult.data;
-          localStorage.setItem("currentCartId", cartId);
+          localCartId = newCartResult.data;
+          localStorage.setItem("currentCartId", localCartId);
+          setCartId(localCartId);
         } else {
           console.error("Error creating cart:", newCartResult.error);
           alert("An error occurred while creating a cart. Please try again.");
@@ -92,14 +102,14 @@ function ProductDetails() {
       }
 
       // 3. Add the item to the cart
-      const addItemResult = await addItemToCart(item, cartId); // Pass cartId to addItemToCart
+      const addItemResult = await addItemToCart(item); // Pass cartId to addItemToCart
       console.log("addItemResult >> ", addItemResult);
 
       if (addItemResult.success) {
         // Update cart state using the setState function
         setCartItems(addItemResult.data.items); // Update items
         handleFetchCart();
-        setCartId(addItemResult.data.cartId); // Update cartId
+        // setCartId(addItemResult.data.cartId); // Update cartId
         // ... other state updates as needed
 
         // Optionally, display a success message to the user
@@ -148,7 +158,7 @@ function ProductDetails() {
     try {
       const deleteResult = await deleteCartItem(productId);
       if (deleteResult.success) {
-        setCartItems(deleteResult.data.items);
+        setCartItems(deleteResult?.data?.items);
         setSubTotal(deleteResult.data.totalPrice);
       } else {
         console.error("Error deleting item from cart:", deleteResult.error);
@@ -168,7 +178,7 @@ function ProductDetails() {
       if (getCartResponse?.success) {
         setCartItems(getCartResponse.data.items);
         setSubTotal(getCartResponse.data.totalPrice);
-        setCartId(getCartResponse.data.cartId); // Store the cartId
+        setCartId(getCartResponse.data.id); // Store the cartId
         setFetchLoading(false);
       } else {
         console.log(
@@ -186,6 +196,8 @@ function ProductDetails() {
   useEffect(() => {
     handleFetchCart();
   }, []);
+
+  const isCartEmpty = !cartItems || cartItems.length === 0;
 
   const handleExpressOrder = () => {
     // No need to use localStorage here, as you're using Firebase
@@ -228,7 +240,7 @@ function ProductDetails() {
                   {product.discountPrice ? (
                     <span className="text-gray-500 line-through">
                       {" "}
-                      product?.price{" "}
+                      {product?.price}{" "}
                     </span>
                   ) : (
                     product?.price
@@ -283,26 +295,47 @@ function ProductDetails() {
                     </button>
                   </div>
                 </div>
+                {isCartEmpty ? (
+                  " "
+                ) : (
+                  <div className="w-full flex justify-center mt-4">
+                    <Dialog>
+                      <DialogTrigger>
+                        <Button className="relative bg-green-500 w-full text-white px-6 py-2 rounded-md hover:bg-green-600">
+                          <span className="animate-ping absolute -right-2 -top-2 inline-flex h-4 w-4 rounded-full bg-green-400 opacity-75"></span>
+                          <span className="absolute -right-2 -top-2 inline-flex h-4 w-4 rounded-full bg-green-400 opacity-100"></span>
+                          Express Order
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Fill the form to order</DialogTitle>
+                          <DialogDescription>
+                            <ExpressOrderForm cartId={cartId} />
+                          </DialogDescription>
+                        </DialogHeader>
+                      </DialogContent>
+                    </Dialog>
 
-                <div className="w-full flex justify-center mt-4">
-                  <Dialog>
-                    <DialogTrigger>
-                      <Button className="relative bg-green-500 w-full text-white px-6 py-2 rounded-md hover:bg-green-600">
-                        <span className="animate-ping absolute -right-2 -top-2 inline-flex h-4 w-4 rounded-full bg-green-400 opacity-75"></span>
-                        <span className="absolute -right-2 -top-2 inline-flex h-4 w-4 rounded-full bg-green-400 opacity-100"></span>
-                        Express Order
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Fill the form to order</DialogTitle>
-                        <DialogDescription>
-                          <ExpressOrderForm cartId={cartId} />
-                        </DialogDescription>
-                      </DialogHeader>
-                    </DialogContent>
-                  </Dialog>
-                </div>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button className="ml-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                            <HelpCircle className="h-5 w-5" />{" "}
+                            {/* Lucide "?" icon */}
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>
+                            Express Order allows you to quickly place an order
+                            with the default payment option being "Pay on
+                            Delivery."
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -366,7 +399,7 @@ function ProductDetails() {
                   </Dialog>
 
                   <Link
-                    to={`/home/checkout?cartId=${cartId}`} // Pass cartId to checkout
+                    to={`/checkout?cartId=${cartId}`} // Pass cartId to checkout
                     className="bg-green-500 text-white px-6 py-2 rounded-full hover:bg-green-600"
                   >
                     Continue to Checkout

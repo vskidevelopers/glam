@@ -59,6 +59,7 @@ const CartTable = ({ cart, fetchCart }) => {
     const isConfirmed = window.confirm(
       "Are you sure you want to delete this item from your cart?"
     );
+    console.log("product id to pass to internal delete func >>> ", productId);
 
     // If the user confirms, proceed with deletion
     if (isConfirmed) {
@@ -69,7 +70,8 @@ const CartTable = ({ cart, fetchCart }) => {
         if (deleteResult?.success) {
           fetchCart(); // Refresh the cart after deleting
         } else {
-          console.error("Error deleting item from cart:", deleteResult.error);
+          console.error("Error deleting item from cart:", deleteResult);
+          fetchCart(); // Refresh the cart after deleting
           // Handle error, e.g., display an error message
         }
       } catch (error) {
@@ -97,7 +99,7 @@ const CartTable = ({ cart, fetchCart }) => {
       </TableHeader>
       <TableBody>
         {cart?.map((item) => (
-          <TableRow key={item.productId}>
+          <TableRow key={item.id || item.productId}>
             <TableCell>
               <img
                 src={item.productImage}
@@ -116,14 +118,14 @@ const CartTable = ({ cart, fetchCart }) => {
             <TableCell>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => handleDecrease(item.productId)}
+                  onClick={() => handleDecrease(item.id || item?.productId)}
                   className="px-2 py-1 bg-gray-200 rounded"
                 >
                   -
                 </button>
                 <span>{item.quantity}</span>
                 <button
-                  onClick={() => handleIncrease(item.productId)}
+                  onClick={() => handleIncrease(item.id || item?.productId)}
                   className="px-2 py-1 bg-gray-200 rounded"
                 >
                   +
@@ -140,7 +142,7 @@ const CartTable = ({ cart, fetchCart }) => {
             </TableCell>
             <TableCell className="text-right">
               <button
-                onClick={() => handleDelete(item.productId)}
+                onClick={() => handleDelete(item.id || item?.productId)}
                 className="text-red-600"
               >
                 <Trash className="w-5 h-5" />

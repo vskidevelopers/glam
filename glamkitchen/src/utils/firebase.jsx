@@ -1217,39 +1217,49 @@ export function useCartFunctions() {
   const deleteCartItem = async (itemId) => {
     try {
       const cartId = localStorage.getItem("currentCartId");
-
       if (!cartId) {
-        return { success: false, message: "No cart found" };
+        return { success: false, message: "No cart found in local storage." };
       }
 
-      const cartDocRef = doc(cartsCollectionRef, cartId);
+      const q = query(cartsCollectionRef, where("id", "==", cartId));
+      const querySnapshot = await getDocs(q);
+      let cartDocRef;
+      if (querySnapshot.empty) {
+        return { success: false, message: "Cart not found in db." };
+      } else {
+        cartDocRef = querySnapshot.docs[0].ref;
+      }
+
       const cartSnapshot = await getDoc(cartDocRef);
-
-      if (!cartSnapshot.exists()) {
-        return { success: false, message: "Cart not found" };
-      }
-
       const cartData = cartSnapshot.data();
 
-      // Find the index of the item to delete
-      const itemIndex = cartData?.items.findIndex((item) => item.id === itemId);
-
-      if (itemIndex === -1) {
-        return { success: false, message: "Item not found in cart" };
+      if (!cartData || !cartData.items) {
+        return {
+          success: false,
+          message: "Cart data or items array not found.",
+        };
       }
 
-      // Get the reference to the item document to delete
-      const itemDocRef = doc(
-        cartDocRef,
-        "items",
-        cartData.items[itemIndex].id // Assuming you have an 'id' field for each item
-      );
+      const itemToDelete = cartData.items.find((item) => item.id === itemId);
 
-      // Delete the item document
-      await deleteDoc(itemDocRef);
+      if (!itemToDelete || !itemToDelete.price || !itemToDelete.quantity) {
+        return {
+          success: false,
+          message: "Item not found or missing price/quantity.",
+        };
+      }
+
+      const itemSubtotal = itemToDelete?.subtotal;
+      const updatedItems = cartData.items.filter((item) => item.id !== itemId);
+      const updatedTotalPrice = cartData.totalPrice - itemSubtotal;
+
+      await updateDoc(cartDocRef, {
+        items: updatedItems,
+        totalPrice: updatedTotalPrice,
+      });
 
       console.log("Item deleted from cart in Firebase:", itemId);
-      return { success: true, data: itemId }; // Return the deleted item ID
+      return { success: true };
     } catch (error) {
       console.error("Error deleting item from cart:", error);
       return { success: false, error };
