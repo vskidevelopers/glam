@@ -56,10 +56,14 @@ import { useEffect, useState } from "react";
 import EditProductForm from "@/components/forms/EditProductForm";
 import AddProductForm from "@/components/forms/AddProductForm";
 import { useProductFunctions } from "@/utils/firebase";
+import { useToast } from "@/hooks/use-toast";
 
 export default function ProductManagement() {
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState([]);
+  const [newProducts, setNewProducts] = useState([]);
+  const [salesProducts, setSalesProducts] = useState([]);
+
   const {
     fetchAllProducts,
     deleteProduct,
@@ -67,6 +71,8 @@ export default function ProductManagement() {
     markProductAsTrending,
     unmarkProduct,
   } = useProductFunctions();
+  const { toast } = useToast();
+
   const fetchAllProductsInStore = async () => {
     setLoading(true);
     try {
@@ -79,10 +85,38 @@ export default function ProductManagement() {
       setLoading(false);
     }
   };
+  const fetchAllNewProductsInStore = async () => {
+    setLoading(true);
+    try {
+      const fetchAllProductsResponse = await fetchAllProductsByAttribute("new");
+      console.log("fetch_all_products_response >> ", fetchAllProductsResponse);
+      setNewProducts(fetchAllProductsResponse?.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("error_response_fetching_all_products >> ", error);
+      setLoading(false);
+    }
+  };
+  const fetchAllSalesProductsInStore = async () => {
+    setLoading(true);
+    try {
+      const fetchAllProductsResponse = await fetchAllProductsByAttribute(
+        "sale"
+      );
+      console.log("fetch_all_products_response >> ", fetchAllProductsResponse);
+      setSalesProducts(fetchAllProductsResponse?.data);
+      setLoading(false);
+    } catch (error) {
+      console.error("error_response_fetching_all_products >> ", error);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     console.log("fetching_all_products_in_store_initilized ... ");
     fetchAllProductsInStore();
+    fetchAllNewProductsInStore();
+    fetchAllSaleProductsInStore();
   }, []);
 
   // pagination
@@ -113,6 +147,11 @@ export default function ProductManagement() {
       console.log("Deleting...");
       const deleteProductResponse = await deleteProduct(id);
       console.log("delete_product_response >> ", deleteProductResponse);
+      toast({
+        title: "product successfully deleted",
+        variant: "destructive",
+      });
+      fetchAllProductsInStore();
     } else {
       // Cancel delete operation
       console.log("Delete operation canceled.");
@@ -138,6 +177,324 @@ export default function ProductManagement() {
       );
     } else {
       return currentItems.map((product, index) => (
+        <TableRow key={index}>
+          <Dialog>
+            {/* Product Image */}
+            <TableCell className="hidden sm:table-cell">
+              <img
+                alt="Product image"
+                className="aspect-square rounded-md object-cover"
+                height="64"
+                src={product.productImage || "/placeholder.svg"}
+                width="64"
+              />
+            </TableCell>
+
+            {/* Product Name */}
+            <TableCell className="font-medium">{product.productName}</TableCell>
+
+            {/* Product Category */}
+            <TableCell className="hidden md:table-cell">
+              {product.ProductCategory}
+            </TableCell>
+
+            {/* Product Tags */}
+            <TableCell className="hidden md:table-cell">
+              <div className="flex flex-wrap gap-2">
+                {product.productTags.map((tag, idx) => (
+                  <Badge key={idx} variant="outline" className="text-xs">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            </TableCell>
+
+            {/* Product Price */}
+            <TableCell className="hidden md:table-cell whitespace-nowrap">
+              Ksh {product.price}
+            </TableCell>
+
+            {/* Stock Status */}
+            <TableCell>
+              <Badge
+                variant={
+                  product.stockStatus === "Available" ? "outline" : "secondary"
+                }
+              >
+                {product.stockStatus}
+              </Badge>
+            </TableCell>
+
+            {/* Product Properties (sale, blackFriday, etc.) */}
+            <TableCell className="hidden md:table-cell">
+              <div className="flex flex-col gap-1">
+                {Object.entries(product.productProperties).map(
+                  ([property, value]) =>
+                    value && (
+                      <Badge
+                        key={property}
+                        variant="secondary"
+                        className="text-xs capitalize"
+                      >
+                        {property === "blackFriday" ? "Black Friday" : property}
+                      </Badge>
+                    )
+                )}
+              </div>
+            </TableCell>
+
+            {/* Creation Date */}
+            <TableCell className="hidden md:table-cell">
+              {product.createdAt}
+            </TableCell>
+
+            {/* Actions */}
+            <TableCell>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button aria-haspopup="true" size="icon" variant="ghost">
+                    <MoreHorizontal className="h-4 w-4" />
+                    <span className="sr-only">Toggle menu</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+
+                  {/* Edit Option */}
+                  <DropdownMenuItem>
+                    <DialogTrigger
+                      variant="ghost"
+                      className="w-full flex items-center"
+                    >
+                      <Pencil className="mr-1 w-5" />
+                      Edit
+                    </DialogTrigger>
+                  </DropdownMenuItem>
+
+                  {/* Delete Option */}
+                  <DropdownMenuItem
+                    onClick={() => handleDeleteProduct(product?.id)}
+                  >
+                    <Trash2 className="text-red-700 mr-1 w-5" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </TableCell>
+
+            {/* Dialog for Editing */}
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Edit Product</DialogTitle>
+                <DialogDescription>
+                  Modify the details of this product. Save changes to update the
+                  product listing.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex gap-2 justify-center">
+                <StatusButton
+                  variant="outline"
+                  onClick={() => handleMarkProductAsTrending(product)}
+                >
+                  Mark as Trending
+                </StatusButton>
+                <StatusButton
+                  variant="success"
+                  onClick={() => handleMarkProductAsMonthlyOffer(product)}
+                >
+                  Mark as Monthly Offer
+                </StatusButton>
+                <StatusButton
+                  variant="destructive"
+                  onClick={() => handleUnmarkProduct(product)}
+                >
+                  UnMark
+                </StatusButton>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </TableRow>
+      ));
+    }
+  };
+  const renderSaleProducts = () => {
+    if (loading) {
+      return (
+        <TableRow>
+          <TableCell colSpan={7} className="text-center">
+            Fetching products. Please wait...
+          </TableCell>
+        </TableRow>
+      );
+    } else if (!products || products.length === 0) {
+      return (
+        <TableRow>
+          <TableCell colSpan={7} className="text-center">
+            No products in store
+          </TableCell>
+        </TableRow>
+      );
+    } else {
+      return salesProducts.map((product, index) => (
+        <TableRow key={index}>
+          <Dialog>
+            {/* Product Image */}
+            <TableCell className="hidden sm:table-cell">
+              <img
+                alt="Product image"
+                className="aspect-square rounded-md object-cover"
+                height="64"
+                src={product.productImage || "/placeholder.svg"}
+                width="64"
+              />
+            </TableCell>
+
+            {/* Product Name */}
+            <TableCell className="font-medium">{product.productName}</TableCell>
+
+            {/* Product Category */}
+            <TableCell className="hidden md:table-cell">
+              {product.ProductCategory}
+            </TableCell>
+
+            {/* Product Tags */}
+            <TableCell className="hidden md:table-cell">
+              <div className="flex flex-wrap gap-2">
+                {product.productTags.map((tag, idx) => (
+                  <Badge key={idx} variant="outline" className="text-xs">
+                    {tag}
+                  </Badge>
+                ))}
+              </div>
+            </TableCell>
+
+            {/* Product Price */}
+            <TableCell className="hidden md:table-cell whitespace-nowrap">
+              Ksh {product.price}
+            </TableCell>
+
+            {/* Stock Status */}
+            <TableCell>
+              <Badge
+                variant={
+                  product.stockStatus === "Available" ? "outline" : "secondary"
+                }
+              >
+                {product.stockStatus}
+              </Badge>
+            </TableCell>
+
+            {/* Product Properties (sale, blackFriday, etc.) */}
+            <TableCell className="hidden md:table-cell">
+              <div className="flex flex-col gap-1">
+                {Object.entries(product.productProperties).map(
+                  ([property, value]) =>
+                    value && (
+                      <Badge
+                        key={property}
+                        variant="secondary"
+                        className="text-xs capitalize"
+                      >
+                        {property === "blackFriday" ? "Black Friday" : property}
+                      </Badge>
+                    )
+                )}
+              </div>
+            </TableCell>
+
+            {/* Creation Date */}
+            <TableCell className="hidden md:table-cell">
+              {product.createdAt}
+            </TableCell>
+
+            {/* Actions */}
+            <TableCell>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button aria-haspopup="true" size="icon" variant="ghost">
+                    <MoreHorizontal className="h-4 w-4" />
+                    <span className="sr-only">Toggle menu</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+
+                  {/* Edit Option */}
+                  <DropdownMenuItem>
+                    <DialogTrigger
+                      variant="ghost"
+                      className="w-full flex items-center"
+                    >
+                      <Pencil className="mr-1 w-5" />
+                      Edit
+                    </DialogTrigger>
+                  </DropdownMenuItem>
+
+                  {/* Delete Option */}
+                  <DropdownMenuItem
+                    onClick={() => handleDeleteProduct(product?.id)}
+                  >
+                    <Trash2 className="text-red-700 mr-1 w-5" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </TableCell>
+
+            {/* Dialog for Editing */}
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Edit Product</DialogTitle>
+                <DialogDescription>
+                  Modify the details of this product. Save changes to update the
+                  product listing.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex gap-2 justify-center">
+                <StatusButton
+                  variant="outline"
+                  onClick={() => handleMarkProductAsTrending(product)}
+                >
+                  Mark as Trending
+                </StatusButton>
+                <StatusButton
+                  variant="success"
+                  onClick={() => handleMarkProductAsMonthlyOffer(product)}
+                >
+                  Mark as Monthly Offer
+                </StatusButton>
+                <StatusButton
+                  variant="destructive"
+                  onClick={() => handleUnmarkProduct(product)}
+                >
+                  UnMark
+                </StatusButton>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </TableRow>
+      ));
+    }
+  };
+  const renderNewProducts = () => {
+    if (loading) {
+      return (
+        <TableRow>
+          <TableCell colSpan={7} className="text-center">
+            Fetching products. Please wait...
+          </TableCell>
+        </TableRow>
+      );
+    } else if (!products || products.length === 0) {
+      return (
+        <TableRow>
+          <TableCell colSpan={7} className="text-center">
+            No products in store
+          </TableCell>
+        </TableRow>
+      );
+    } else {
+      return newProducts.map((product, index) => (
         <TableRow key={index}>
           <Dialog>
             {/* Product Image */}
@@ -431,6 +788,130 @@ export default function ProductManagement() {
                 </TableHeader>
 
                 <TableBody>{renderProducts()}</TableBody>
+              </Table>
+            </CardContent>
+            <CardFooter>
+              <div className="flex justify-between items-baseline w-full">
+                <div className="text-xs text-muted-foreground">
+                  Showing{" "}
+                  <strong>
+                    {itemOffset + 1}–
+                    {lastCount > products?.length ? products.length : lastCount}
+                  </strong>{" "}
+                  of <strong>{products?.length}</strong> products
+                </div>
+                <div className=" flex justify-end my-4">
+                  <Pagination
+                    items={products}
+                    pageCount={pageCount}
+                    setItemOffset={setItemOffset}
+                    itemsPerPage={itemsPerPage}
+                  />
+                </div>
+              </div>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+        <TabsContent value="sale">
+          <Card x-chunk="dashboard-06-chunk-0">
+            <CardHeader>
+              <CardTitle>Products</CardTitle>
+              <CardDescription>
+                Manage your products and view their sales performance.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="hidden w-[100px] sm:table-cell">
+                      <span className="sr-only">Image</span>
+                    </TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead className="hidden md:table-cell">
+                      Category
+                    </TableHead>
+                    <TableHead className="hidden md:table-cell">Tags</TableHead>
+
+                    <TableHead className="hidden md:table-cell">
+                      Price
+                    </TableHead>
+                    <TableHead>Stock Status</TableHead>
+                    <TableHead className="hidden md:table-cell">
+                      Product Properties
+                    </TableHead>
+                    <TableHead className="hidden md:table-cell">
+                      Created at
+                    </TableHead>
+                    <TableHead>
+                      <span className="sr-only">Actions</span>
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+
+                <TableBody>{renderSaleProducts()}</TableBody>
+              </Table>
+            </CardContent>
+            <CardFooter>
+              <div className="flex justify-between items-baseline w-full">
+                <div className="text-xs text-muted-foreground">
+                  Showing{" "}
+                  <strong>
+                    {itemOffset + 1}–
+                    {lastCount > products?.length ? products.length : lastCount}
+                  </strong>{" "}
+                  of <strong>{products?.length}</strong> products
+                </div>
+                <div className=" flex justify-end my-4">
+                  <Pagination
+                    items={products}
+                    pageCount={pageCount}
+                    setItemOffset={setItemOffset}
+                    itemsPerPage={itemsPerPage}
+                  />
+                </div>
+              </div>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+        <TabsContent value="new">
+          <Card x-chunk="dashboard-06-chunk-0">
+            <CardHeader>
+              <CardTitle>Products</CardTitle>
+              <CardDescription>
+                Manage your products and view their sales performance.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="hidden w-[100px] sm:table-cell">
+                      <span className="sr-only">Image</span>
+                    </TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead className="hidden md:table-cell">
+                      Category
+                    </TableHead>
+                    <TableHead className="hidden md:table-cell">Tags</TableHead>
+
+                    <TableHead className="hidden md:table-cell">
+                      Price
+                    </TableHead>
+                    <TableHead>Stock Status</TableHead>
+                    <TableHead className="hidden md:table-cell">
+                      Product Properties
+                    </TableHead>
+                    <TableHead className="hidden md:table-cell">
+                      Created at
+                    </TableHead>
+                    <TableHead>
+                      <span className="sr-only">Actions</span>
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+
+                <TableBody>{renderNewProducts()}</TableBody>
               </Table>
             </CardContent>
             <CardFooter>

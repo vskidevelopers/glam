@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useToast } from "@/hooks/use-toast";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,7 @@ export default function AddProductForm() {
   const { uploadImage, imageUploadProgress } = useUploadImage();
   const { addProduct } = useProductFunctions();
   const { fetchAllCategories } = useCategoriesFunctions();
+  const { toast } = useToast();
 
   const dropZoneConfig = {
     maxFiles: 5,
@@ -132,6 +134,10 @@ export default function AddProductForm() {
         console.log(formattedData);
         const addProductResponse = await addProduct(formattedData);
         console.log("add product response >> ", addProductResponse);
+        toast({
+          title: "New Product added successfully",
+          description: formattedDate,
+        });
         reset();
         setLoading(false);
       } else {
