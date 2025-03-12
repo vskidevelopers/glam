@@ -116,7 +116,7 @@ export default function ProductManagement() {
     console.log("fetching_all_products_in_store_initilized ... ");
     fetchAllProductsInStore();
     fetchAllNewProductsInStore();
-    fetchAllSaleProductsInStore();
+    fetchAllSalesProductsInStore();
   }, []);
 
   // pagination
