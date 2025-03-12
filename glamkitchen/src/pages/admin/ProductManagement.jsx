@@ -70,6 +70,7 @@ export default function ProductManagement() {
     markProductAsMonthlyOffer,
     markProductAsTrending,
     unmarkProduct,
+    fetchAllProductsByAttribute,
   } = useProductFunctions();
   const { toast } = useToast();
 
