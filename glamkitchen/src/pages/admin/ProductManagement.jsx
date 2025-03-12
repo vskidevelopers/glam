@@ -336,7 +336,7 @@ export default function ProductManagement() {
         </TableRow>
       );
     } else {
-      return salesProducts.map((product, index) => (
+      return salesProducts?.map((product, index) => (
         <TableRow key={index}>
           <Dialog>
             {/* Product Image */}
@@ -495,7 +495,7 @@ export default function ProductManagement() {
         </TableRow>
       );
     } else {
-      return newProducts.map((product, index) => (
+      return newProducts?.map((product, index) => (
         <TableRow key={index}>
           <Dialog>
             {/* Product Image */}
