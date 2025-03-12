@@ -90,7 +90,10 @@ export default function ProductManagement() {
     setLoading(true);
     try {
       const fetchAllProductsResponse = await fetchAllProductsByAttribute("new");
-      console.log("fetch_all_products_response >> ", fetchAllProductsResponse);
+      console.log(
+        "fetch_all_new_products_response >> ",
+        fetchAllProductsResponse
+      );
       setNewProducts(fetchAllProductsResponse?.data);
       setLoading(false);
     } catch (error) {
@@ -104,7 +107,10 @@ export default function ProductManagement() {
       const fetchAllProductsResponse = await fetchAllProductsByAttribute(
         "sale"
       );
-      console.log("fetch_all_products_response >> ", fetchAllProductsResponse);
+      console.log(
+        "fetch_all_new_products_response >> ",
+        fetchAllProductsResponse
+      );
       setSalesProducts(fetchAllProductsResponse?.data);
       setLoading(false);
     } catch (error) {
