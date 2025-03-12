@@ -475,23 +475,26 @@ export const useProductFunctions = () => {
     console.log(`fetchAllProductsByAttribute(${attribute}) initialized ...`);
     const productCollectionRef = collection(db, "Products");
     try {
+      // Construct the where clause dynamically to target the nested field
       const productsQuery = query(
         productCollectionRef,
-        where(attribute, "==", true)
+        where("productTags", "array-contains", {
+          [attribute.split(":")[0]]: true,
+        })
       );
+
       const productsSnapshot = await getDocs(productsQuery);
       console.log("products_snapshot >> ", productsSnapshot);
 
-      if (productsSnapshot?.empty) {
-        console.log(`No Products Found with ${attribute} `);
+      if (productsSnapshot.empty) {
+        console.log(`No Products Found with ${attribute}`);
         return {
           collection: "products",
           success: false,
           data: null,
-          message: `No Products Found with ${attribute} `,
+          message: `No Products Found with ${attribute}`,
         };
       } else {
-        console.log("products_snapshot >> ", productsSnapshot);
         const productsData = productsSnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -501,11 +504,11 @@ export const useProductFunctions = () => {
           collection: "products",
           success: true,
           data: productsData,
-          message: `${productsData.length} products found with ${attribute} `,
+          message: `${productsData.length} products found with ${attribute}`,
         };
       }
     } catch (error) {
-      console.log(`Error in getting products with ${attribute}  >>> `, error);
+      console.log(`Error in getting products with ${attribute} >>> `, error);
       return {
         collection: "products",
         success: false,
