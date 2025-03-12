@@ -475,12 +475,10 @@ export const useProductFunctions = () => {
     console.log(`fetchAllProductsByAttribute(${attribute}) initialized ...`);
     const productCollectionRef = collection(db, "Products");
     try {
-      // Construct the where clause dynamically to target the nested field
+      // Correct query to search within the productTags array
       const productsQuery = query(
         productCollectionRef,
-        where("productTags", "array-contains", {
-          [attribute.split(":")[0]]: true,
-        })
+        where("productTags", "array-contains", { [attribute]: true })
       );
 
       const productsSnapshot = await getDocs(productsQuery);
