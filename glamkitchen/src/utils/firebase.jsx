@@ -478,7 +478,7 @@ export const useProductFunctions = () => {
       // Correct query to search within the productTags array
       const productsQuery = query(
         productCollectionRef,
-        where("productTags", "array-contains", { [attribute]: true })
+        where("productTags", "array-contains", { attribute: true })
       );
 
       const productsSnapshot = await getDocs(productsQuery);
